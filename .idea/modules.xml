@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/curtaincall.iml" filepath="$PROJECT_DIR$/.idea/curtaincall.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/curtaincall.curtaincall.main.iml" filepath="$PROJECT_DIR$/.idea/modules/curtaincall.curtaincall.main.iml" />
     </modules>
   </component>
 </project>
