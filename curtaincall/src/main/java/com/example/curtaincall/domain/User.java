@@ -1,6 +1,7 @@
 package com.example.curtaincall.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class User {
 
     @Id
@@ -19,6 +20,18 @@ public class User {
     private String phoneNumber;
     private String nickName;
     private boolean isCurtainCallOnAndOff;
+
+//    @Builder
+    public User() {
+
+    }
+    @Builder
+    public User(String phoneNumber,String nickName,boolean isCurtainCallOnAndOff){
+        this.phoneNumber=phoneNumber;
+        this.nickName = nickName;
+        this.isCurtainCallOnAndOff=isCurtainCallOnAndOff;
+    }
+
 
 
 
