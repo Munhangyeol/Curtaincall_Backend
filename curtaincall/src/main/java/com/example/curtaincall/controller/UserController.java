@@ -24,7 +24,6 @@ public class UserController {
     @ResponseBody
     @PostMapping("/main/user")
     public String saveUser(@RequestBody RequestUserDTO requestUserDTO){
-        System.out.println(requestUserDTO);
         userService.saveUser(requestUserDTO);
         return "Successfull Save User";
     }
