@@ -11,8 +11,9 @@ import lombok.Builder;
         this.nickName = nickName;
         this.isCurtainCall = isCurtainCall;
     }
-    public User toEntity(){
-        return User.builder().phoneNumber(this.phoneNumber)
+    public User toEntity(String encryptNumber){
+        return User.builder().phoneNumber(encryptNumber)
                 .nickName(this.nickName).isCurtainCallOnAndOff(this.isCurtainCall).build();
     }
+
 }

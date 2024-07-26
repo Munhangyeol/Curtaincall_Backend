@@ -22,10 +22,9 @@ public class Contact {
         this.name=name;
         this.phoneNumber=phoneNumber;
     }
-
-    public PhoneBook toEntity(User user){
+    public PhoneBook toEntity(User user,String encryptNumber){
         return PhoneBook.builder()
-                .phoneNumber(phoneNumber).nickName(name)
+                .phoneNumber(encryptNumber).nickName(name)
                 .user(user).build();
     }
 }
