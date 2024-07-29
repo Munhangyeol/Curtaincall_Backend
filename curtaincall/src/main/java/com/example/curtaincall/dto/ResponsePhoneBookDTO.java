@@ -12,9 +12,9 @@ import java.util.Map;
 @Setter
 @RequiredArgsConstructor
 public class ResponsePhoneBookDTO {
-    Map<String, List<Contact>> request;
+    Map<String, List<Contact>> response;
     @Builder
-    public ResponsePhoneBookDTO(Map<String,List<Contact>> request){
-        this.request = request;
+    public ResponsePhoneBookDTO(Map<String,List<Contact>> response){
+        this.response = response;
     }
 }
