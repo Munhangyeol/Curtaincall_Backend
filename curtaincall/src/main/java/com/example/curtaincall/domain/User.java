@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 //@RequiredArgsConstructor
 public class User {
 
