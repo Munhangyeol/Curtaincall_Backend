@@ -1,13 +1,11 @@
 package com.example.curtaincall.service;
 
 import com.example.curtaincall.PhoneBookRepository;
+import com.example.curtaincall.RecentCallLogRepository;
 import com.example.curtaincall.UserRepository;
 import com.example.curtaincall.domain.PhoneBook;
 import com.example.curtaincall.domain.User;
-import com.example.curtaincall.dto.Contact;
-import com.example.curtaincall.dto.RequestUserDTO;
-import com.example.curtaincall.dto.ResponsePhoneBookDTO;
-import com.example.curtaincall.dto.ResponseUserDTO;
+import com.example.curtaincall.dto.*;
 import com.example.curtaincall.global.SecretkeyManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,7 @@ public class UserService {
     private final PhoneBookRepository phoneBookRepository;
     private final SecretkeyManager secretkeyManager;
 
-    public UserService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, SecretkeyManager secretkeyManager) {
+    public UserService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, RecentCallLogRepository recentCallLogRepository, SecretkeyManager secretkeyManager) {
         this.userRepository = userRepository;
         this.phoneBookRepository = phoneBookRepository;
         this.secretkeyManager = secretkeyManager;
@@ -63,7 +61,6 @@ public class UserService {
         }
     }
     public ResponseUserDTO findUserByPhoneNumber(String phoneNumber){
-
         User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber)).orElseThrow(
                 () -> new RuntimeException("This user is not in this repository")
         );
