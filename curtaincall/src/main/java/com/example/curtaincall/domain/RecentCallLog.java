@@ -1,9 +1,6 @@
 package com.example.curtaincall.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +17,7 @@ public class RecentCallLog {
     private boolean isMissedCall;
     private String nickName;
     private String phoneNumber;
+
     private Date recentCallDate;
 
     @Builder
