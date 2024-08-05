@@ -1,6 +1,6 @@
 package com.example.curtaincall.service;
 
-import com.example.curtaincall.RecentCallLogRepository;
+import com.example.curtaincall.repository.RecentCallLogRepository;
 import com.example.curtaincall.domain.RecentCallLog;
 import com.example.curtaincall.dto.RequestRecentCallLogDTO;
 import com.example.curtaincall.dto.ResponseRecentCallLogDTO;
@@ -21,7 +21,7 @@ public class CallLogService {
     }
     public void saveRecentCallLog(RequestRecentCallLogDTO recentCallLogDTO, String phoneNumber){
         if(recentCallLogRepository.count()==20){
-            Optional<ResponseRecentCallLogDTO> oldestLog = recentCallLogRepository
+            Optional<RecentCallLog> oldestLog = recentCallLogRepository
                     .findTopByOrderByRecentCallDateAsc();
             oldestLog.ifPresent(recentCallLogRepository::delete);
         }

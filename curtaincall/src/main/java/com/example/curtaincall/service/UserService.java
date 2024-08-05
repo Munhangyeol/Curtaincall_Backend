@@ -1,8 +1,8 @@
 package com.example.curtaincall.service;
 
-import com.example.curtaincall.PhoneBookRepository;
-import com.example.curtaincall.RecentCallLogRepository;
-import com.example.curtaincall.UserRepository;
+import com.example.curtaincall.repository.PhoneBookRepository;
+import com.example.curtaincall.repository.RecentCallLogRepository;
+import com.example.curtaincall.repository.UserRepository;
 import com.example.curtaincall.domain.PhoneBook;
 import com.example.curtaincall.domain.User;
 import com.example.curtaincall.dto.*;
@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -52,7 +53,11 @@ public class UserService {
             User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(stringListEntry)).orElseThrow(
                     () -> new RuntimeException("This phonenumber is not in this repostiory"));
             Contact contact = putRequestDTO.get(stringListEntry);
-            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(prePhoneNumber, user);
+            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(prePhoneNumber, user).
+                    orElseThrow(()-> new RuntimeException("This phoneNumber and user is not in this repository"));
+            if(phoneBooks.isEmpty()){
+                throw new RuntimeException("This phoneNumber and user is not in this repository");
+            }
             for (PhoneBook phoneBook : phoneBooks) {
                 phoneBook.setPhoneNumber(putRequestDTO.get(stringListEntry).getPhoneNumber());
                 phoneBook.setNickName(putRequestDTO.get(stringListEntry).getPhoneNumber());
@@ -84,6 +89,20 @@ public class UserService {
         );
         contactMap.put(secretkeyManager.decrypt(user.getPhoneNumber()), contacts);
         return ResponsePhoneBookDTO.builder().response(contactMap).build();
+    }
+    public List<Contact> getCurrentUserInfo(String userPhoneNumber,String postPhoneNumber){
+        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(
+                ()->new RuntimeException("This user is not in this repository")
+        );
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(secretkeyManager.encrypt(postPhoneNumber), user)
+                .orElseThrow(() -> new RuntimeException("This phoneNumber and user is not in this repository"));
+        if(phoneBooks.isEmpty()){
+            throw new RuntimeException("This phoneNumber and user is not in this repository");
+        }
+        return phoneBooks.stream().map(phoneBook -> Contact.builder().
+                phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).name(phoneBook.getNickName()
+                        ).build()).collect(Collectors.toList());
+
     }
 
 

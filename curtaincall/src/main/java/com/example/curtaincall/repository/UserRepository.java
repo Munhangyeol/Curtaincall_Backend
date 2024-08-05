@@ -1,4 +1,4 @@
-package com.example.curtaincall;
+package com.example.curtaincall.repository;
 
 import com.example.curtaincall.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
