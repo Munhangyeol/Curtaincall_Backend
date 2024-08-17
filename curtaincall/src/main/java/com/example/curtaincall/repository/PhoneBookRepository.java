@@ -1,4 +1,4 @@
-package com.example.curtaincall;
+package com.example.curtaincall.repository;
 
 import com.example.curtaincall.domain.PhoneBook;
 import com.example.curtaincall.domain.User;
@@ -11,5 +11,5 @@ public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
     //    @Override
     List<PhoneBook> findByUser(User user);
 
-    List<PhoneBook> findByPhoneNumberAndUser(String phoneNumber, User user);
+    Optional<List<PhoneBook>> findByPhoneNumberAndUser(String phoneNumber, User user);
 }

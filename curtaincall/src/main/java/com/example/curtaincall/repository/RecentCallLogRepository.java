@@ -1,4 +1,4 @@
-package com.example.curtaincall;
+package com.example.curtaincall.repository;
 
 import com.example.curtaincall.domain.RecentCallLog;
 import com.example.curtaincall.dto.ResponseRecentCallLogDTO;
@@ -12,7 +12,7 @@ public interface RecentCallLogRepository extends JpaRepository<RecentCallLog,Lon
 
     long count();
 
-    Optional<ResponseRecentCallLogDTO> findTopByOrderByRecentCallDateAsc();
+    Optional<RecentCallLog> findTopByOrderByRecentCallDateAsc();
 
-    void delete(ResponseRecentCallLogDTO responseRecentCallLogDTO);
+    void delete(RecentCallLog recentCallLog);
 }

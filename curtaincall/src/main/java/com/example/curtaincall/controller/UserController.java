@@ -61,5 +61,13 @@ public class UserController {
         userService.updatePhoneBook(putRequestPhonebookDTO,prePhoneNumber);
         return "Successfull update AddressBook!";
     }
+    @ResponseBody
+    @GetMapping("/main/user/calling")
+    public ResponseEntity<List<Contact>> getCurrentUserInfo(@RequestParam("userPhoneNumber")String userPhoneNumber,
+                                     @RequestParam("postPhoneNumber")String postPhoneNumber){
+
+        return ResponseEntity.ok(userService.getCurrentUserInfo(userPhoneNumber, postPhoneNumber));
+    }
+
 
 }
