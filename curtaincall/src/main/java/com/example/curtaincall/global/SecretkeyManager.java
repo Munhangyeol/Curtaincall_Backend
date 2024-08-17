@@ -1,7 +1,5 @@
 package com.example.curtaincall.global;
 
-import com.example.curtaincall.exception.EncryptException;
-import jakarta.websocket.EncodeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
