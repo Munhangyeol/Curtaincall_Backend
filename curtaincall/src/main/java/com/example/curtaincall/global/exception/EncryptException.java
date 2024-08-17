@@ -1,4 +1,4 @@
-package com.example.curtaincall.exception;
+package com.example.curtaincall.global.exception;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
