@@ -32,7 +32,6 @@ public class UserController {
     @ResponseBody
     @PostMapping("/main/user/phoneAddressBookInfo")
     public String saveUserPhoneAdderssBook(@RequestBody  Map<String, List<Contact>> requestPhoneBookDTO){
-        System.out.println(requestPhoneBookDTO);
         userService.saveUserPhoneBooks(requestPhoneBookDTO);
         return "Successfull Save User Phonebook";
     }

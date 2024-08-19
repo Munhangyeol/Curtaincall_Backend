@@ -1,5 +1,7 @@
 package com.example.curtaincall.service;
 
+import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
+import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.PhoneBookRepository;
 import com.example.curtaincall.repository.RecentCallLogRepository;
 import com.example.curtaincall.repository.UserRepository;
@@ -28,10 +30,11 @@ public class UserService {
     public void saveUser(RequestUserDTO requestUserDTO) {
         userRepository.save(requestUserDTO.toEntity(secretkeyManager.encrypt(requestUserDTO.phoneNumber())));
     }
-    public void saveUserPhoneBooks(Map<String, List<Contact>> requestPhoneBookDTO){
+    public void saveUserPhoneBooks(Map<String, List<Contact>>
+                                           requestPhoneBookDTO){
         for (String stringListEntry : requestPhoneBookDTO.keySet()) {
             User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(stringListEntry)).orElseThrow(
-                    () -> new RuntimeException("This phonenumber is not in this repostiory"));
+                    PhoneBookNotfoundException::new);
             requestPhoneBookDTO.get(stringListEntry).forEach(
                     contact -> phoneBookRepository.save(contact.toEntity(user,
                             secretkeyManager.encrypt(contact.getPhoneNumber())
@@ -51,12 +54,12 @@ public class UserService {
     public void updatePhoneBook(Map<String, Contact> putRequestDTO, String prePhoneNumber) {
         for (String stringListEntry : putRequestDTO.keySet()) {
             User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(stringListEntry)).orElseThrow(
-                    () -> new RuntimeException("This phonenumber is not in this repostiory"));
+                    UserNotfoundException::new);
             Contact contact = putRequestDTO.get(stringListEntry);
             List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(prePhoneNumber, user).
-                    orElseThrow(()-> new RuntimeException("This phoneNumber and user is not in this repository"));
-            if(phoneBooks.isEmpty()){
-                throw new RuntimeException("This phoneNumber and user is not in this repository");
+                    orElseThrow(PhoneBookNotfoundException::new);
+            if(phoneBooks.isEmpty()) {
+                throw new PhoneBookNotfoundException();
             }
             for (PhoneBook phoneBook : phoneBooks) {
                 phoneBook.setPhoneNumber(putRequestDTO.get(stringListEntry).getPhoneNumber());
@@ -67,7 +70,9 @@ public class UserService {
     }
     public ResponseUserDTO findUserByPhoneNumber(String phoneNumber){
         User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber)).orElseThrow(
-                () -> new RuntimeException("This user is not in this repository")
+                UserNotfoundException::new
+                //exception을 반환하기 보다는,exceptionhandler를 이용해서 프론트 단으로 user가 현재 등록이 안되어 있음을
+                //알려야함
         );
         return ResponseUserDTO.builder().nickName(user.getNickName())
                 .isCurtainCallOnAndOff(true)
@@ -75,7 +80,7 @@ public class UserService {
     }
     public ResponsePhoneBookDTO findPhoneBookByPhoneNumber(String phoneNumber){
         User user=userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber)).orElseThrow(
-                () -> new RuntimeException("This user is not in this repository")
+                UserNotfoundException::new
         );
         List<PhoneBook> phoneBooks= phoneBookRepository.findByUser(user);
         Map<String, List<Contact>> contactMap = new HashMap<>();
@@ -92,12 +97,12 @@ public class UserService {
     }
     public List<Contact> getCurrentUserInfo(String userPhoneNumber,String postPhoneNumber){
         User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(
-                ()->new RuntimeException("This user is not in this repository")
+                UserNotfoundException::new
         );
         List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(secretkeyManager.encrypt(postPhoneNumber), user)
-                .orElseThrow(() -> new RuntimeException("This phoneNumber and user is not in this repository"));
+                .orElseThrow(PhoneBookNotfoundException::new);
         if(phoneBooks.isEmpty()){
-            throw new RuntimeException("This phoneNumber and user is not in this repository");
+            throw new PhoneBookNotfoundException();
         }
         return phoneBooks.stream().map(phoneBook -> Contact.builder().
                 phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).name(phoneBook.getNickName()
