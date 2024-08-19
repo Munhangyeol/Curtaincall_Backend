@@ -8,15 +8,5 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 public class EncryptException extends Exception {
-    public EncryptException(String message, Throwable cause) {
-        super(message, cause);
-    }
 
-    public EncryptException(String message) {
-        super(message);
-    }
-
-    public EncryptException(Throwable cause) {
-        super(cause);
-    }
 }
