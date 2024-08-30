@@ -34,14 +34,15 @@ public class AuthorizationController {
     }
     @GetMapping("authorization/configNumber")
     public ResponseEntity<Boolean> configNumber(@RequestParam("phoneNumber")String phoneNumber,
-                                                @RequestParam("phoneNumber") String configNumber) {
+                                                @RequestParam("configNumber") String configNumber) {
         Boolean configResult = curtainCallMessageService.configNumber(phoneNumber, configNumber);
+
         return ResponseEntity.ok(configResult);
     }
     @GetMapping("authorization/configUser")
-    public ResponseEntity<ResponseAuthorizationDTO> configUser(@RequestParam("phoneNumber")String phoneNumber) {
-        authorizaionService.isUser(phoneNumber);
-        return ResponseEntity.ok(ResponseAuthorizationDTO.builder().isUser(true).message("This user is aleady authorizated").build());
+    public ResponseEntity<Boolean> configUser(@RequestParam("phoneNumber")String phoneNumber) {
+//        authorizaionService.isUser(phoneNumber);
+        return ResponseEntity.ok((authorizaionService.isUser(phoneNumber)));
     }
 
 

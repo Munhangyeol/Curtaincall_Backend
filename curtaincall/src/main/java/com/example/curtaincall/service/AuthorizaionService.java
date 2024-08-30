@@ -8,6 +8,8 @@ import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AuthorizaionService {
     private final UserRepository userRepository;
@@ -19,10 +21,8 @@ public class AuthorizaionService {
         this.secretkeyManager = secretkeyManager;
     }
     public Boolean isUser(String phoneNumber){
-        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber)).orElseThrow(
-                AuthorizationException::new
-        );
-        return true;
+        Optional<User> user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber));
+        return user.isPresent();
 
     }
 }

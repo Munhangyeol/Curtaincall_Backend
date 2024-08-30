@@ -45,6 +45,8 @@ public class CurtainCallMessageService {
 
     public Boolean configNumber(String phoneNumber,String configNumber){
         System.out.println(redisTemplate.opsForValue().get(phoneNumber)+configNumber);
+        System.out.println(redisTemplate.opsForValue().get(phoneNumber)+configNumber);
+        System.out.println(Objects.equals(redisTemplate.opsForValue().get(phoneNumber), configNumber));
         return Objects.equals(redisTemplate.opsForValue().get(phoneNumber), configNumber);
     }
     @NotNull
@@ -60,7 +62,7 @@ public class CurtainCallMessageService {
         Random random = new Random();
         int randomNumber = random.nextInt(900000) + 100000; // 100000 ~ 999999 범위의 숫자 생성
         configNumber=String.format("%06d", randomNumber);
-        redisTemplate.opsForValue().set(recievePhoneNumber,recievePhoneNumber,3, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(recievePhoneNumber,configNumber,3, TimeUnit.MINUTES);
     }
 
 

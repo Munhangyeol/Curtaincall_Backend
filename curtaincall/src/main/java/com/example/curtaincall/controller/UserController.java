@@ -49,8 +49,9 @@ public class UserController {
     }
     @ResponseBody
     @PutMapping("/main/user")
-    public String changeUser(@RequestBody RequestUserDTO requestUserDTO){
-        userService.updateUser(requestUserDTO);
+    public String changeUser(@RequestParam("prePhoneNumber") String prePhoneNumber,
+                                 @RequestBody RequestUserDTO requestUserDTO){
+        userService.updateUser(requestUserDTO,prePhoneNumber);
         return "Successfull update user!";
     }
     @ResponseBody
