@@ -52,13 +52,12 @@ public class UserServiceTest {
                 .nickName("문한결").build();
         userService.saveUser(requestUserDTO);
         Map<String, List<Contact>> maps = new HashMap<>();
-        Contact contact1 = new Contact("조한흠", "01012345678");
-        Contact contact2 = new Contact("박성준", "01098765678");
+        Contact contact1 = new Contact("조한흠", "01012345678",false);
+        Contact contact2 = new Contact("박성준", "01098765678",false);
         List<Contact> contacts = new ArrayList<>();
         contacts.add(contact1);
         contacts.add(contact2);
         maps.put("01023326094", contacts);
-
         //when
         userService.saveUserPhoneBooks(maps);
         //then

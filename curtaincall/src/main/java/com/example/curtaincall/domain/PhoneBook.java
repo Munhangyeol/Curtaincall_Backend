@@ -16,6 +16,7 @@ public class PhoneBook {
     private Long id;
     private String nickName;
     private String phoneNumber;
+    private boolean isCurtainCallOnAndOff;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -24,10 +25,11 @@ public class PhoneBook {
 
     }
     @Builder
-    public PhoneBook(String nickName,String phoneNumber,User user){
+    public PhoneBook(String nickName,String phoneNumber,User user,Boolean isCurtainCallOnAndOff){
         this.nickName = nickName;
         this.phoneNumber = phoneNumber;
         this.user = user;
+        this.isCurtainCallOnAndOff = isCurtainCallOnAndOff;
     }
 
     

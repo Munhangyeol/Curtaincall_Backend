@@ -28,42 +28,46 @@ public class UserService {
         this.secretkeyManager = secretkeyManager;
     }
     public void saveUser(RequestUserDTO requestUserDTO) {
-        userRepository.save(requestUserDTO.toEntity(secretkeyManager.encrypt(requestUserDTO.phoneNumber())));
-    }
+        if(userRepository.findByPhoneNumber(requestUserDTO.phoneNumber()).isEmpty()) {
+            userRepository.save(requestUserDTO.toEntity(secretkeyManager.encrypt(requestUserDTO.phoneNumber())));
+        }}
     public void saveUserPhoneBooks(Map<String, List<Contact>>
                                            requestPhoneBookDTO){
+//        System.out.println(r);
+
         for (String stringListEntry : requestPhoneBookDTO.keySet()) {
             User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(stringListEntry)).orElseThrow(
                     PhoneBookNotfoundException::new);
             requestPhoneBookDTO.get(stringListEntry).forEach(
                     contact -> phoneBookRepository.save(contact.toEntity(user,
                             secretkeyManager.encrypt(contact.getPhoneNumber())
-                    ))//이거 그냥 saveall로 처리하는 방향으로 리펙토링하는걸로.
+                    ))//이거 그냥 saveall로 처리하는 방향으로 리펙토링하는걸로
             );
+            requestPhoneBookDTO.get(stringListEntry).forEach(contact -> System.out.println("onandoff"+contact.getIsCurtainCallOnAndOff()));
         }
     }
-    public void updateUser(RequestUserDTO requestUserDTO){
-        Optional<User> user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(requestUserDTO.phoneNumber()));
-        if(user.isPresent()){
-            User notNullUser = user.get();
-            notNullUser.setNickName(requestUserDTO.nickName());
-            notNullUser.setPhoneNumber(secretkeyManager.encrypt(requestUserDTO.phoneNumber()));
-            userRepository.save(notNullUser);
-        }
+    public void updateUser(RequestUserDTO requestUserDTO,String prePhoneNumber){
+        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(prePhoneNumber)).orElseThrow(
+                UserNotfoundException::new
+        );
+            user.setNickName(requestUserDTO.nickName());
+            if(!requestUserDTO.phoneNumber().equals(prePhoneNumber))
+                user.setPhoneNumber(secretkeyManager.encrypt(requestUserDTO.phoneNumber()));
+            userRepository.save(user);
     }
     public void updatePhoneBook(Map<String, Contact> putRequestDTO, String prePhoneNumber) {
         for (String stringListEntry : putRequestDTO.keySet()) {
             User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(stringListEntry)).orElseThrow(
                     UserNotfoundException::new);
-            Contact contact = putRequestDTO.get(stringListEntry);
-            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(prePhoneNumber, user).
+            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(secretkeyManager.encrypt(prePhoneNumber), user).
                     orElseThrow(PhoneBookNotfoundException::new);
             if(phoneBooks.isEmpty()) {
                 throw new PhoneBookNotfoundException();
             }
             for (PhoneBook phoneBook : phoneBooks) {
-                phoneBook.setPhoneNumber(putRequestDTO.get(stringListEntry).getPhoneNumber());
-                phoneBook.setNickName(putRequestDTO.get(stringListEntry).getPhoneNumber());
+                phoneBook.setPhoneNumber(secretkeyManager.encrypt(putRequestDTO.get(stringListEntry).getPhoneNumber()));
+                phoneBook.setNickName(putRequestDTO.get(stringListEntry).getName());
+                phoneBook.setCurtainCallOnAndOff(putRequestDTO.get(stringListEntry).getIsCurtainCallOnAndOff());
             }
             phoneBookRepository.saveAll(phoneBooks);
         }
@@ -89,10 +93,13 @@ public class UserService {
                 phoneBook -> contacts.add(Contact.builder()
                         .phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber()))
                         .name(phoneBook.getNickName())
+                                .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
                         .build())
-
         );
+        contacts.forEach(contact -> System.out.println("!!"+contact.getIsCurtainCallOnAndOff()));
+//        phoneBooks.forEach(phoneBook -> System.out.println(phoneBook.isCurtainCallOnAndOff()));
         contactMap.put(secretkeyManager.decrypt(user.getPhoneNumber()), contacts);
+        contactMap.get("01023326094").forEach(contact -> System.out.println(contact.getIsCurtainCallOnAndOff()));
         return ResponsePhoneBookDTO.builder().response(contactMap).build();
     }
     public List<Contact> getCurrentUserInfo(String userPhoneNumber,String postPhoneNumber){
@@ -107,7 +114,6 @@ public class UserService {
         return phoneBooks.stream().map(phoneBook -> Contact.builder().
                 phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).name(phoneBook.getNickName()
                         ).build()).collect(Collectors.toList());
-
     }
 
 
