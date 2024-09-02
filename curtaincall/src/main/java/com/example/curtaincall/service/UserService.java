@@ -87,20 +87,7 @@ public class UserService {
                 UserNotfoundException::new
         );
         List<PhoneBook> phoneBooks= phoneBookRepository.findByUser(user);
-        Map<String, List<Contact>> contactMap = new HashMap<>();
-        List<Contact> contacts = new ArrayList<>();
-        phoneBooks.forEach(
-                phoneBook -> contacts.add(Contact.builder()
-                        .phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber()))
-                        .name(phoneBook.getNickName())
-                                .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
-                        .build())
-        );
-        contacts.forEach(contact -> System.out.println("!!"+contact.getIsCurtainCallOnAndOff()));
-//        phoneBooks.forEach(phoneBook -> System.out.println(phoneBook.isCurtainCallOnAndOff()));
-        contactMap.put(secretkeyManager.decrypt(user.getPhoneNumber()), contacts);
-        contactMap.get("01023326094").forEach(contact -> System.out.println(contact.getIsCurtainCallOnAndOff()));
-        return ResponsePhoneBookDTO.builder().response(contactMap).build();
+        return getResponsePhoneBookDTO(user, phoneBooks);
     }
     public List<Contact> getCurrentUserInfo(String userPhoneNumber,String postPhoneNumber){
         User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(
@@ -114,6 +101,32 @@ public class UserService {
         return phoneBooks.stream().map(phoneBook -> Contact.builder().
                 phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).name(phoneBook.getNickName()
                         ).build()).collect(Collectors.toList());
+    }
+
+    public ResponsePhoneBookDTO getPhoneBookWithRollback(String userPhoneNumber){
+        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
+//                .orElseThrow(PhoneBookNotfoundException::new);
+
+        phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
+        phoneBookRepository.saveAll(phoneBooks);
+        return getResponsePhoneBookDTO(user, phoneBooks);
+    }
+
+    private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
+        Map<String, List<Contact>> contactMap = new HashMap<>();
+        List<Contact> contacts = new ArrayList<>();
+//        System.out.println(phoneBooks);
+        phoneBooks.forEach(
+                phoneBook -> contacts.add(Contact.builder()
+                        .phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber()))
+                        .name(phoneBook.getNickName())
+                        .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
+                        .build())
+        );
+        System.out.println(contacts);
+        contactMap.put(secretkeyManager.decrypt(user.getPhoneNumber()), contacts);
+        return ResponsePhoneBookDTO.builder().response(contactMap).build();
     }
 
 

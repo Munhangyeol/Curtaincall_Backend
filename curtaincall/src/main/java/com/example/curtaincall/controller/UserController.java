@@ -69,5 +69,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getCurrentUserInfo(userPhoneNumber, postPhoneNumber));
     }
 
+    @ResponseBody
+    @GetMapping("/main/user/rollback")
+    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback(@RequestParam("phoneNumber")String phoneNumber) {
+        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(phoneNumber);
+        return ResponseEntity.ok(responsePhoneBookDTO);
+    }
 
 }
