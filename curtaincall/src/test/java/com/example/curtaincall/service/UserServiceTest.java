@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 
 @SpringBootTest
+@Transactional
 public class UserServiceTest {
     @Autowired
     private UserService userService;
@@ -63,6 +65,33 @@ public class UserServiceTest {
         //then
         Assertions.assertNotNull(userService.findPhoneBookByPhoneNumber("01023326094"));
     }
+
+    @DisplayName("user의 이름이 없데이트가 잘 되는지를 확인.")
+    @Test
+    public void updateUserWhenUpdateName(){
+        //given
+        RequestUserDTO requestUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
+                .nickName("문한결").build();
+        userService.saveUser(requestUserDTO);
+        RequestUserDTO requestNewUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
+                .nickName("문한별").build();
+        userService.updateUser(requestNewUserDTO, "01023326094");
+        Assertions.assertEquals("문한별", userService.findUserByPhoneNumber("01023326094").nickName());
+    }
+    @DisplayName("user의 번호가 없데이트가 잘 되는지를 확인.")
+    @Test
+    public void updateUserWhenUpdatePhoneNumber(){
+        //given
+        RequestUserDTO requestUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
+                .nickName("문한결").build();
+        userService.saveUser(requestUserDTO);
+        RequestUserDTO requestNewUserDTO = RequestUserDTO.builder().phoneNumber("01033326094")
+                .nickName("문한결").build();
+        userService.updateUser(requestNewUserDTO, "01023326094");
+        Assertions.assertNotNull(userService.findUserByPhoneNumber("01033326094"));
+    }
+
+
 
 
 }
