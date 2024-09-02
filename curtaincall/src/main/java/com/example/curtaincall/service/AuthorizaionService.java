@@ -23,6 +23,5 @@ public class AuthorizaionService {
     public Boolean isUser(String phoneNumber){
         Optional<User> user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber));
         return user.isPresent();
-
     }
 }
