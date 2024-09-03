@@ -18,19 +18,12 @@ public class CallController {
         this.callLogService = callLogService;
     }
 
-    @ResponseBody
-    @PostMapping("/main/recentCallHistory")
-    public String saveRecentCallLog(@RequestParam("phoneNumber") String phoneNumber,
-                                    @RequestBody RequestRecentCallLogDTO recentCallLogDTO){
-        callLogService.saveRecentCallLog(recentCallLogDTO,phoneNumber);
 
-        return "sucessfull save recent call log";
-    }
     @ResponseBody
     @GetMapping("/main/recentCallHistory")
-    public ResponseEntity<List<ResponseRecentCallLogDTO>> getRecentCallLog(@RequestParam("phoneNumber") String phoneNumber
-                                                                           ){
-        return ResponseEntity.ok(callLogService.getRecenCallLogs(phoneNumber));
+    public ResponseEntity<ResponseRecentCallLogDTO> getRecentCallLog(@RequestParam("phoneNumber") String phoneNumber
+                                                                        ,@RequestBody RequestRecentCallLogDTO recentCallLogDTO   ){
+        return ResponseEntity.ok(callLogService.findRecentCallContact(phoneNumber,recentCallLogDTO));
 
     }
 }

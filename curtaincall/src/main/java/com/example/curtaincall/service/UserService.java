@@ -27,107 +27,121 @@ public class UserService {
         this.phoneBookRepository = phoneBookRepository;
         this.secretkeyManager = secretkeyManager;
     }
-    public void saveUser(RequestUserDTO requestUserDTO) {
-        if(userRepository.findByPhoneNumber(requestUserDTO.phoneNumber()).isEmpty()) {
-            userRepository.save(requestUserDTO.toEntity(secretkeyManager.encrypt(requestUserDTO.phoneNumber())));
-        }}
-    public void saveUserPhoneBooks(Map<String, List<Contact>>
-                                           requestPhoneBookDTO){
-//        System.out.println(r);
 
-        for (String stringListEntry : requestPhoneBookDTO.keySet()) {
-            User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(stringListEntry)).orElseThrow(
-                    PhoneBookNotfoundException::new);
-            requestPhoneBookDTO.get(stringListEntry).forEach(
-                    contact -> phoneBookRepository.save(contact.toEntity(user,
-                            secretkeyManager.encrypt(contact.getPhoneNumber())
-                    ))//이거 그냥 saveall로 처리하는 방향으로 리펙토링하는걸로
-            );
-            requestPhoneBookDTO.get(stringListEntry).forEach(contact -> System.out.println("onandoff"+contact.getIsCurtainCallOnAndOff()));
+    public void saveUser(RequestUserDTO requestUserDTO) {
+        if(userRepository.findByPhoneNumber(encrypt(requestUserDTO.phoneNumber())).isEmpty()) {
+            userRepository.save(requestUserDTO.toEntity(encrypt(requestUserDTO.phoneNumber())));
         }
     }
-    public void updateUser(RequestUserDTO requestUserDTO,String prePhoneNumber){
-        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(prePhoneNumber)).orElseThrow(
+
+    public void saveUserPhoneBooks(Map<String, List<Contact>> requestPhoneBookDTO) {
+        for (String phoneNumber : requestPhoneBookDTO.keySet()) {
+            User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
+                    PhoneBookNotfoundException::new);
+
+            List<Contact> contacts = requestPhoneBookDTO.get(phoneNumber);
+            List<PhoneBook> phoneBooks = contacts.stream()
+                    .map(contact -> contact.toEntity(user, encrypt(contact.getPhoneNumber())))
+                    .collect(Collectors.toList());
+
+            phoneBookRepository.saveAll(phoneBooks);
+
+            contacts.forEach(contact -> System.out.println("onandoff" + contact.getIsCurtainCallOnAndOff()));
+        }
+    }
+
+    public void updateUser(RequestUserDTO requestUserDTO, String prePhoneNumber) {
+        User user = userRepository.findByPhoneNumber(encrypt(prePhoneNumber)).orElseThrow(
                 UserNotfoundException::new
         );
-            user.setNickName(requestUserDTO.nickName());
-            if(!requestUserDTO.phoneNumber().equals(prePhoneNumber))
-                user.setPhoneNumber(secretkeyManager.encrypt(requestUserDTO.phoneNumber()));
-            userRepository.save(user);
+
+        user.setNickName(requestUserDTO.nickName());
+        if(!requestUserDTO.phoneNumber().equals(prePhoneNumber)) {
+            user.setPhoneNumber(encrypt(requestUserDTO.phoneNumber()));
+        }
+        userRepository.save(user);
     }
+
     public void updatePhoneBook(Map<String, Contact> putRequestDTO, String prePhoneNumber) {
-        for (String stringListEntry : putRequestDTO.keySet()) {
-            User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(stringListEntry)).orElseThrow(
+        for (String phoneNumber : putRequestDTO.keySet()) {
+            User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
                     UserNotfoundException::new);
-            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(secretkeyManager.encrypt(prePhoneNumber), user).
-                    orElseThrow(PhoneBookNotfoundException::new);
-            if(phoneBooks.isEmpty()) {
-                throw new PhoneBookNotfoundException();
-            }
+
+            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(prePhoneNumber), user)
+                    .orElseThrow(PhoneBookNotfoundException::new);
+
             for (PhoneBook phoneBook : phoneBooks) {
-                phoneBook.setPhoneNumber(secretkeyManager.encrypt(putRequestDTO.get(stringListEntry).getPhoneNumber()));
-                phoneBook.setNickName(putRequestDTO.get(stringListEntry).getName());
-                phoneBook.setCurtainCallOnAndOff(putRequestDTO.get(stringListEntry).getIsCurtainCallOnAndOff());
+                Contact contact = putRequestDTO.get(phoneNumber);
+                phoneBook.setPhoneNumber(encrypt(contact.getPhoneNumber()));
+                phoneBook.setNickName(contact.getName());
+                phoneBook.setCurtainCallOnAndOff(contact.getIsCurtainCallOnAndOff());
             }
             phoneBookRepository.saveAll(phoneBooks);
         }
     }
-    public ResponseUserDTO findUserByPhoneNumber(String phoneNumber){
-        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber)).orElseThrow(
+
+    public ResponseUserDTO findUserByPhoneNumber(String phoneNumber) {
+        User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
                 UserNotfoundException::new
-                //exception을 반환하기 보다는,exceptionhandler를 이용해서 프론트 단으로 user가 현재 등록이 안되어 있음을
-                //알려야함
         );
-        return ResponseUserDTO.builder().nickName(user.getNickName())
+        return ResponseUserDTO.builder()
+                .nickName(user.getNickName())
                 .isCurtainCallOnAndOff(true)
                 .build();
     }
-    public ResponsePhoneBookDTO findPhoneBookByPhoneNumber(String phoneNumber){
-        User user=userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber)).orElseThrow(
+
+    public ResponsePhoneBookDTO findPhoneBookByPhoneNumber(String phoneNumber) {
+        User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
                 UserNotfoundException::new
         );
-        List<PhoneBook> phoneBooks= phoneBookRepository.findByUser(user);
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
         return getResponsePhoneBookDTO(user, phoneBooks);
     }
-    public List<Contact> getCurrentUserInfo(String userPhoneNumber,String postPhoneNumber){
-        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(
+
+    public List<Contact> getCurrentUserInfo(String userPhoneNumber, String postPhoneNumber) {
+        User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(
                 UserNotfoundException::new
         );
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(secretkeyManager.encrypt(postPhoneNumber), user)
+
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(postPhoneNumber), user)
                 .orElseThrow(PhoneBookNotfoundException::new);
-        if(phoneBooks.isEmpty()){
-            throw new PhoneBookNotfoundException();
-        }
-        return phoneBooks.stream().map(phoneBook -> Contact.builder().
-                phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).name(phoneBook.getNickName()
-                        ).build()).collect(Collectors.toList());
+
+        return phoneBooks.stream()
+                .map(phoneBook -> Contact.builder()
+                        .phoneNumber(decrypt(phoneBook.getPhoneNumber()))
+                        .name(phoneBook.getNickName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
-    public ResponsePhoneBookDTO getPhoneBookWithRollback(String userPhoneNumber){
-        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
+    public ResponsePhoneBookDTO getPhoneBookWithRollback(String userPhoneNumber) {
+        User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
-//                .orElseThrow(PhoneBookNotfoundException::new);
 
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
         phoneBookRepository.saveAll(phoneBooks);
+
         return getResponsePhoneBookDTO(user, phoneBooks);
     }
 
     private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
         Map<String, List<Contact>> contactMap = new HashMap<>();
-        List<Contact> contacts = new ArrayList<>();
-//        System.out.println(phoneBooks);
-        phoneBooks.forEach(
-                phoneBook -> contacts.add(Contact.builder()
-                        .phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber()))
+        List<Contact> contacts = phoneBooks.stream()
+                .map(phoneBook -> Contact.builder()
+                        .phoneNumber(decrypt(phoneBook.getPhoneNumber()))
                         .name(phoneBook.getNickName())
                         .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
                         .build())
-        );
-        System.out.println(contacts);
-        contactMap.put(secretkeyManager.decrypt(user.getPhoneNumber()), contacts);
+                .collect(Collectors.toList());
+
+        contactMap.put(decrypt(user.getPhoneNumber()), contacts);
         return ResponsePhoneBookDTO.builder().response(contactMap).build();
     }
+    private String encrypt(String plainText) {
+        return secretkeyManager.encrypt(plainText);
+    }
 
-
+    private String decrypt(String cipherText) {
+        return secretkeyManager.decrypt(cipherText);
+    }
 }
