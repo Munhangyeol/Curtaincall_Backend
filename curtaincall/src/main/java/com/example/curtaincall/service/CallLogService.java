@@ -36,12 +36,15 @@ public class CallLogService {
             List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(
                     secretkeyManager.encrypt(phoneNumber), user)
                     .orElseThrow(PhoneBookNotfoundException::new);
+            if(phoneBooks.isEmpty())
+            {
+                throw new PhoneBookNotfoundException();
+            }
             for (PhoneBook phoneBook : phoneBooks) {
                 callLogInfos.add(CallLogInfo.builder().
                         nickname(phoneBook.getNickName()).
                         phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).build());
             }
-
         }
         return ResponseRecentCallLogDTO.builder().callLogInfos(callLogInfos).build();
     }
