@@ -44,6 +44,4 @@ public class AuthorizationController {
 //        authorizaionService.isUser(phoneNumber);
         return ResponseEntity.ok((authorizaionService.isUser(phoneNumber)));
     }
-
-
 }

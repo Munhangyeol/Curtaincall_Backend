@@ -4,21 +4,14 @@ import com.example.curtaincall.domain.RecentCallLog;
 import lombok.Builder;
 
 import java.util.Date;
+import java.util.List;
 
-public record RequestRecentCallLogDTO(boolean isMissedCall, String nickName, Date recentCallDate) {
+public record RequestRecentCallLogDTO(List<String> phoneNumbers) {
 
     @Builder
-    public RequestRecentCallLogDTO(boolean isMissedCall, String nickName, Date recentCallDate){
-        this.isMissedCall = isMissedCall;
-        this.nickName = nickName;
-        this.recentCallDate = recentCallDate;
+    public RequestRecentCallLogDTO(List<String> phoneNumbers){
+        this.phoneNumbers = phoneNumbers;
     }
 
-    public RecentCallLog toEntity(String phoneNumber){
-        return RecentCallLog.builder()
-                .recentCallDate(this.recentCallDate)
-                .isMissedCall(this.isMissedCall)
-                .nickName(this.nickName)
-                .phoneNumber(phoneNumber).build();
-    }
+
 }

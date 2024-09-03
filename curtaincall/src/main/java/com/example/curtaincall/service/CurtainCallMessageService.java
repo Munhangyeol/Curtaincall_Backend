@@ -26,7 +26,6 @@ public class CurtainCallMessageService {
     private String api_secretkey;
     @Value("${coolsms.sendPhonenumber}")
     private String sendPhoneNumber;
-
     private String configNumber;
     private DefaultMessageService messageService;
     private final RedisTemplate<String, String> redisTemplate;
@@ -64,6 +63,4 @@ public class CurtainCallMessageService {
         configNumber=String.format("%06d", randomNumber);
         redisTemplate.opsForValue().set(recievePhoneNumber,configNumber,3, TimeUnit.MINUTES);
     }
-
-
 }

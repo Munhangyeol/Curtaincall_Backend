@@ -1,50 +1,48 @@
 package com.example.curtaincall.service;
 
+import com.example.curtaincall.domain.PhoneBook;
+import com.example.curtaincall.domain.User;
+import com.example.curtaincall.dto.ResponseRecentCallLogDTO.CallLogInfo;
+import com.example.curtaincall.global.SecretkeyManager;
+import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
+import com.example.curtaincall.global.exception.UserNotfoundException;
+import com.example.curtaincall.repository.PhoneBookRepository;
 import com.example.curtaincall.repository.RecentCallLogRepository;
 import com.example.curtaincall.domain.RecentCallLog;
 import com.example.curtaincall.dto.RequestRecentCallLogDTO;
 import com.example.curtaincall.dto.ResponseRecentCallLogDTO;
+import com.example.curtaincall.repository.UserRepository;
+import okhttp3.Call;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CallLogService {
-    private final RecentCallLogRepository recentCallLogRepository;
-
-    public CallLogService(RecentCallLogRepository recentCallLogRepository) {
-        this.recentCallLogRepository = recentCallLogRepository;
+    private final UserRepository userRepository;
+    private final PhoneBookRepository phoneBookRepository;
+    private final SecretkeyManager secretkeyManager;
+    public CallLogService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, SecretkeyManager secretkeyManager) {
+        this.userRepository = userRepository;
+        this.phoneBookRepository = phoneBookRepository;
+        this.secretkeyManager = secretkeyManager;
     }
-    public void saveRecentCallLog(RequestRecentCallLogDTO recentCallLogDTO, String phoneNumber){
-        if(recentCallLogRepository.count()==20){
-            Optional<RecentCallLog> oldestLog = recentCallLogRepository
-                    .findTopByOrderByRecentCallDateAsc();
-            oldestLog.ifPresent(recentCallLogRepository::delete);
-        }
-        recentCallLogRepository.save(recentCallLogDTO.toEntity(phoneNumber));
-    }
-    public List<ResponseRecentCallLogDTO> getRecenCallLogs(String phoneNumber){
-       List<RecentCallLog> recentCallLogs=recentCallLogRepository.findByPhoneNumber(phoneNumber).orElseThrow(()
-       ->new RuntimeException("해당 전화번호가 recentCallRepo에 없습니다"+" "+phoneNumber));
-       sortCallLogsByDate(recentCallLogs);
-        return recentCallLogs.stream().map(recentCallLog ->
-                ResponseRecentCallLogDTO.builder().isMissedCall(recentCallLog.isMissedCall())
-                        .recentCallDate(recentCallLog.getRecentCallDate())
-                        .phoneNumber(recentCallLog.getPhoneNumber())
-                        .nickName(recentCallLog.getNickName())
-                        .build()).collect(Collectors.toList());
-
-    }
-    public void sortCallLogsByDate(List<RecentCallLog> recentCallLogs) {
-        Collections.sort(recentCallLogs, new Comparator<RecentCallLog>() {
-            @Override
-            public int compare(RecentCallLog o1, RecentCallLog o2) {
-                return o1.getRecentCallDate().compareTo(o2.getRecentCallDate());
+    public ResponseRecentCallLogDTO findRecentCallContact(String userPhoneNumber,RequestRecentCallLogDTO recentPhoneNumbers){
+        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(
+                UserNotfoundException::new);
+        List<CallLogInfo> callLogInfos = new ArrayList<>();
+        for (String phoneNumber : recentPhoneNumbers.phoneNumbers()) {
+            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(
+                    secretkeyManager.encrypt(phoneNumber), user)
+                    .orElseThrow(PhoneBookNotfoundException::new);
+            for (PhoneBook phoneBook : phoneBooks) {
+                callLogInfos.add(CallLogInfo.builder().
+                        nickname(phoneBook.getNickName()).
+                        phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).build());
             }
-        });
+
+        }
+        return ResponseRecentCallLogDTO.builder().callLogInfos(callLogInfos).build();
     }
 }
