@@ -79,7 +79,7 @@ public class UserController {
     @GetMapping("/main/user/setAllOn")
     public String setAllOnPhoneBook(@RequestParam("phoneNumber")String phoneNumber) {
     userService.setAllOnPhoneBook(phoneNumber);
-        return "Successfull SetAllOn";
+        return "커튼콜 기능 일괄 활성화 되었습니다";
     }
 
 }
