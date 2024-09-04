@@ -75,5 +75,11 @@ public class UserController {
         ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(phoneNumber);
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
+    @ResponseBody
+    @GetMapping("/main/user/setAllOn")
+    public String setAllOnPhoneBook(@RequestParam("phoneNumber")String phoneNumber) {
+    userService.setAllOnPhoneBook(phoneNumber);
+        return "Successfull SetAllOn";
+    }
 
 }

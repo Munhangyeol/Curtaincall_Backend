@@ -123,6 +123,13 @@ public class UserService {
 
         return getResponsePhoneBookDTO(user, phoneBooks);
     }
+    public void setAllOnPhoneBook(String userPhoneNumber) {
+        User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
+        phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(true));
+        phoneBookRepository.saveAll(phoneBooks);
+    }
+
 
     private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
         Map<String, List<Contact>> contactMap = new HashMap<>();
