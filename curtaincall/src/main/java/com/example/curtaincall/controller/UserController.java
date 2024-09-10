@@ -38,6 +38,7 @@ public class UserController {
 
     @GetMapping("/main/user")
     public ResponseEntity<ResponseUserDTO> getUser(@RequestParam("phoneNumber") String phoneNumber){
+        System.out.println("phoneNumber: "+phoneNumber);
         ResponseUserDTO responseUserDTO = userService.findUserByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(responseUserDTO);
     }
@@ -67,6 +68,12 @@ public class UserController {
                                      @RequestParam("postPhoneNumber")String postPhoneNumber){
 
         return ResponseEntity.ok(userService.getCurrentUserInfo(userPhoneNumber, postPhoneNumber));
+    }
+    @ResponseBody
+    @GetMapping("/main/user/setOff")
+    public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(@RequestParam("userPhoneNumber") String userPhoneNumber,
+                                                            @RequestParam("userPhoneBookNumber")String userPhoneBookNumber){
+        return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userPhoneNumber, userPhoneBookNumber));
     }
 
     @ResponseBody
