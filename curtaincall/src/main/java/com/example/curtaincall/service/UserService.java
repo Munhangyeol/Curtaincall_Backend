@@ -30,6 +30,7 @@ public class UserService {
 
     public void saveUser(RequestUserDTO requestUserDTO) {
         if(userRepository.findByPhoneNumber(encrypt(requestUserDTO.phoneNumber())).isEmpty()) {
+            log.info("save user info: {}",decrypt(encrypt(requestUserDTO.phoneNumber())));
             userRepository.save(requestUserDTO.toEntity(encrypt(requestUserDTO.phoneNumber())));
         }
     }
@@ -114,6 +115,17 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(String userPhoneNumber,String phoneNumberInPhoneBook){
+        User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumberInPhoneBook), user)
+                .orElseThrow(PhoneBookNotfoundException::new);
+        phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
+        phoneBookRepository.saveAll(phoneBooks);
+       return phoneBooks.stream().map(phoneBook -> ResponseUserDTO.builder().nickName(phoneBook.getNickName())
+                .isCurtainCallOnAndOff(false)
+                .build()).collect(Collectors.toList());
+
+    }
     public ResponsePhoneBookDTO getPhoneBookWithRollback(String userPhoneNumber) {
         User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
