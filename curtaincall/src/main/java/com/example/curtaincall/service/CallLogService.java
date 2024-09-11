@@ -38,7 +38,9 @@ public class CallLogService {
                     .orElseThrow(PhoneBookNotfoundException::new);
             if(phoneBooks.isEmpty())
             {
-                throw new PhoneBookNotfoundException();
+                callLogInfos.add(CallLogInfo.builder().
+                        nickname("").
+                        phoneNumber(phoneNumber).build());
             }
             for (PhoneBook phoneBook : phoneBooks) {
                 callLogInfos.add(CallLogInfo.builder().
