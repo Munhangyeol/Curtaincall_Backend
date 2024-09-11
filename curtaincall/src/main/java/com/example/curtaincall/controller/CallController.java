@@ -20,7 +20,7 @@ public class CallController {
 
 
     @ResponseBody
-    @GetMapping("/main/recentCallHistory")
+    @PostMapping("/main/recentCallHistory")
     public ResponseEntity<ResponseRecentCallLogDTO> getRecentCallLog(@RequestParam("phoneNumber") String phoneNumber
                                                                         ,@RequestBody RequestRecentCallLogDTO recentCallLogDTO   ){
         return ResponseEntity.ok(callLogService.findRecentCallContact(phoneNumber,recentCallLogDTO));
