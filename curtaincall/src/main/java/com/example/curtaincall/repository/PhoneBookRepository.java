@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
     //    @Override
     List<PhoneBook> findByUser(User user);
-
     Optional<List<PhoneBook>> findByPhoneNumberAndUser(String phoneNumber, User user);
+    void deleteByPhoneNumberAndUser(String phoneNumber,User user);
 }

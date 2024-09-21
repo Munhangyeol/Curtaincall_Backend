@@ -1,19 +1,18 @@
 package com.example.curtaincall.controller;
 
 import com.example.curtaincall.dto.Contact;
-import com.example.curtaincall.dto.RequestUserDTO;
-import com.example.curtaincall.dto.ResponsePhoneBookDTO;
-import com.example.curtaincall.dto.ResponseUserDTO;
+import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
+import com.example.curtaincall.dto.request.RequestUserDTO;
+import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
+import com.example.curtaincall.dto.response.ResponseUserDTO;
 import com.example.curtaincall.service.UserService;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 //@RequiredArgsConstructor
 public class UserController {
 
@@ -23,18 +22,18 @@ public class UserController {
         this.userService = userService;
     }
 
-    @ResponseBody
     @PostMapping("/main/user")
     public String saveUser(@RequestBody RequestUserDTO requestUserDTO){
         userService.saveUser(requestUserDTO);
         return "Successfull Save User";
     }
-    @ResponseBody
+
     @PostMapping("/main/user/phoneAddressBookInfo")
     public String saveUserPhoneAdderssBook(@RequestBody  Map<String, List<Contact>> requestPhoneBookDTO){
         userService.saveUserPhoneBooks(requestPhoneBookDTO);
         return "Successfull Save User Phonebook";
     }
+
 
     @GetMapping("/main/user")
     public ResponseEntity<ResponseUserDTO> getUser(@RequestParam("phoneNumber") String phoneNumber){
@@ -48,41 +47,50 @@ public class UserController {
         ResponsePhoneBookDTO responsePhoneBookDTO = userService.findPhoneBookByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
-    @ResponseBody
+
     @PutMapping("/main/user")
     public String changeUser(@RequestParam("prePhoneNumber") String prePhoneNumber,
                                  @RequestBody RequestUserDTO requestUserDTO){
         userService.updateUser(requestUserDTO,prePhoneNumber);
         return "Successfull update user!";
     }
-    @ResponseBody
+
     @PutMapping("/main/user/phoneAddressBookInfo")
     public String changeUserPhoneBook(@RequestParam("prePhoneNumber") String prePhoneNumber,
                                  @RequestBody Map<String,Contact> putRequestPhonebookDTO){
-        userService.updatePhoneBook(putRequestPhonebookDTO,prePhoneNumber);
+            userService.updatePhoneBook(putRequestPhonebookDTO,prePhoneNumber);
         return "Successfull update AddressBook!";
     }
-    @ResponseBody
+
     @GetMapping("/main/user/calling")
     public ResponseEntity<List<Contact>> getCurrentUserInfo(@RequestParam("userPhoneNumber")String userPhoneNumber,
                                      @RequestParam("postPhoneNumber")String postPhoneNumber){
 
         return ResponseEntity.ok(userService.getCurrentUserInfo(userPhoneNumber, postPhoneNumber));
     }
-    @ResponseBody
+
     @GetMapping("/main/user/setOff")
     public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(@RequestParam("userPhoneNumber") String userPhoneNumber,
                                                             @RequestParam("userPhoneBookNumber")String userPhoneBookNumber){
         return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userPhoneNumber, userPhoneBookNumber));
     }
+    @PostMapping("main/user/phoneAddressBookInfo/remove")
+    public String removeNumberInPhoneBook(@RequestParam("phoneNumber") String phoneNumber,
+                                          @RequestBody RequestRemovedNumberInPhoneBookDTO removedNumberDTO){
 
-    @ResponseBody
+        userService.deleteContaceInPhoneNumber(phoneNumber,removedNumberDTO);
+        return "성공적으로 삭제 되었습니다.";
+    }
+
+
+
+
     @GetMapping("/main/user/rollback")
     public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback(@RequestParam("phoneNumber")String phoneNumber) {
         ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(phoneNumber);
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
-    @ResponseBody
+
     @GetMapping("/main/user/setAllOn")
     public String setAllOnPhoneBook(@RequestParam("phoneNumber")String phoneNumber) {
     userService.setAllOnPhoneBook(phoneNumber);

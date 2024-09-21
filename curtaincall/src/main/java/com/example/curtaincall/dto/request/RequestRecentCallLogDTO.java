@@ -1,4 +1,4 @@
-package com.example.curtaincall.dto;
+package com.example.curtaincall.dto.request;
 
 import com.example.curtaincall.domain.RecentCallLog;
 import lombok.Builder;

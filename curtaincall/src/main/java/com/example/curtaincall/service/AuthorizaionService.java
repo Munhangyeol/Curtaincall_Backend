@@ -1,10 +1,7 @@
 package com.example.curtaincall.service;
 
 import com.example.curtaincall.domain.User;
-import com.example.curtaincall.dto.ResponseUserDTO;
 import com.example.curtaincall.global.SecretkeyManager;
-import com.example.curtaincall.global.exception.AuthorizationException;
-import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

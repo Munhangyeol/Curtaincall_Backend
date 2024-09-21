@@ -1,7 +1,6 @@
 package com.example.curtaincall.repository;
 
 import com.example.curtaincall.domain.RecentCallLog;
-import com.example.curtaincall.dto.ResponseRecentCallLogDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

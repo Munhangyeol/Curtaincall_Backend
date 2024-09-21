@@ -1,7 +1,6 @@
 package com.example.curtaincall.service;
 
-import com.example.curtaincall.dto.RequestUserDTO;
-import com.example.curtaincall.repository.UserRepository;
+import com.example.curtaincall.dto.request.RequestUserDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

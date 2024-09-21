@@ -2,21 +2,17 @@ package com.example.curtaincall.service;
 
 import com.example.curtaincall.domain.PhoneBook;
 import com.example.curtaincall.domain.User;
-import com.example.curtaincall.dto.ResponseRecentCallLogDTO.CallLogInfo;
+import com.example.curtaincall.dto.response.ResponseRecentCallLogDTO.CallLogInfo;
 import com.example.curtaincall.global.SecretkeyManager;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
 import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.PhoneBookRepository;
-import com.example.curtaincall.repository.RecentCallLogRepository;
-import com.example.curtaincall.domain.RecentCallLog;
-import com.example.curtaincall.dto.RequestRecentCallLogDTO;
-import com.example.curtaincall.dto.ResponseRecentCallLogDTO;
+import com.example.curtaincall.dto.request.RequestRecentCallLogDTO;
+import com.example.curtaincall.dto.response.ResponseRecentCallLogDTO;
 import com.example.curtaincall.repository.UserRepository;
-import okhttp3.Call;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class CallLogService {

@@ -1,5 +1,6 @@
-package com.example.curtaincall.dto;
+package com.example.curtaincall.dto.response;
 
+import com.example.curtaincall.dto.Contact;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
