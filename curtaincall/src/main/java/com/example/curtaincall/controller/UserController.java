@@ -6,6 +6,8 @@ import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 import com.example.curtaincall.dto.response.ResponseUserDTO;
 import com.example.curtaincall.service.UserService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +25,11 @@ public class UserController {
     }
 
     @PostMapping("/main/user")
-    public String saveUser(@RequestBody RequestUserDTO requestUserDTO){
-        userService.saveUser(requestUserDTO);
-        return "Successfull Save User";
+    public ResponseEntity<String> saveUser(@RequestBody RequestUserDTO requestUserDTO){
+        String token=userService.saveUser(requestUserDTO);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
     @PostMapping("/main/user/phoneAddressBookInfo")
