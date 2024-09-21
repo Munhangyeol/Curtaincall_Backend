@@ -4,6 +4,8 @@ import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
 import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 import com.example.curtaincall.dto.response.ResponseUserDTO;
+import com.example.curtaincall.global.auth.CurtaincallUserInfo;
+import com.example.curtaincall.global.auth.jwt.JwtUtils;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
 import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.PhoneBookRepository;
@@ -27,19 +29,28 @@ public class UserService {
     private final UserRepository userRepository;
     private final PhoneBookRepository phoneBookRepository;
     private final SecretkeyManager secretkeyManager;
+    private final JwtUtils jwtUtils;
 
-    public UserService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, RecentCallLogRepository recentCallLogRepository, SecretkeyManager secretkeyManager) {
+    public UserService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, RecentCallLogRepository recentCallLogRepository, SecretkeyManager secretkeyManager, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.phoneBookRepository = phoneBookRepository;
         this.secretkeyManager = secretkeyManager;
+        this.jwtUtils = jwtUtils;
     }
 
-    public void saveUser(RequestUserDTO requestUserDTO) {
-        if(userRepository.findByPhoneNumber(encrypt(requestUserDTO.phoneNumber())).isEmpty()) {
-            log.info("save user info: {}",decrypt(encrypt(requestUserDTO.phoneNumber())));
-            userRepository.save(requestUserDTO.toEntity(encrypt(requestUserDTO.phoneNumber())));
+    public String saveUser(RequestUserDTO requestUserDTO) {
+        if (userRepository.findByPhoneNumber(encrypt(requestUserDTO.phoneNumber())).isEmpty()) {
+            log.info("save user info: {}", decrypt(encrypt(requestUserDTO.phoneNumber())));
+            User user = userRepository.save(requestUserDTO.toEntity(encrypt(requestUserDTO.phoneNumber())));
+            CurtaincallUserInfo userInfo = CurtaincallUserInfo.builder().id(user.getId())
+                    .phoneNumber(user.getPhoneNumber())
+                    .isCurtaincall(user.isCurtainCallOnAndOff())
+                    .build();
+            return jwtUtils.create(userInfo);
         }
+        return "Not Save";
     }
+
 
     public void saveUserPhoneBooks(Map<String, List<Contact>> requestPhoneBookDTO) {
         for (String phoneNumber : requestPhoneBookDTO.keySet()) {
