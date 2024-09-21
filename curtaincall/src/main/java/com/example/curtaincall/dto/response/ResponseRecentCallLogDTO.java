@@ -1,4 +1,4 @@
-package com.example.curtaincall.dto;
+package com.example.curtaincall.dto.response;
 
 import com.example.curtaincall.domain.RecentCallLog;
 import com.example.curtaincall.domain.User;

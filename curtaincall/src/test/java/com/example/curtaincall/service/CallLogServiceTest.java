@@ -1,14 +1,10 @@
 package com.example.curtaincall.service;
 
 import com.example.curtaincall.dto.Contact;
-import com.example.curtaincall.dto.RequestRecentCallLogDTO;
-import com.example.curtaincall.dto.RequestUserDTO;
-import com.example.curtaincall.dto.ResponseRecentCallLogDTO;
-import com.example.curtaincall.global.SecretkeyManager;
+import com.example.curtaincall.dto.request.RequestRecentCallLogDTO;
+import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
 import com.example.curtaincall.repository.PhoneBookRepository;
-import com.example.curtaincall.repository.UserRepository;
-import okhttp3.Call;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static com.example.curtaincall.dto.ResponseRecentCallLogDTO.*;
+import static com.example.curtaincall.dto.response.ResponseRecentCallLogDTO.*;
 
 @SpringBootTest
 @Transactional

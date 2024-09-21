@@ -1,19 +1,13 @@
 package com.example.curtaincall.controller;
 
-import com.example.curtaincall.domain.User;
-import com.example.curtaincall.dto.ResponseAuthorizationDTO;
 import com.example.curtaincall.global.exception.UserAlreadyExistsException;
-import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.UserRepository;
 import com.example.curtaincall.service.AuthorizaionService;
 import com.example.curtaincall.service.CurtainCallMessageService;
-import com.example.curtaincall.service.UserService;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor

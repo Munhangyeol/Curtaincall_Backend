@@ -1,4 +1,4 @@
-package com.example.curtaincall.dto;
+package com.example.curtaincall.dto.response;
 
 import lombok.Builder;
 

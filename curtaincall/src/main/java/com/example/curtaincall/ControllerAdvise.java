@@ -1,7 +1,7 @@
 package com.example.curtaincall;
 
 import com.example.curtaincall.dto.LogMessage;
-import com.example.curtaincall.dto.ResponseAuthorizationDTO;
+import com.example.curtaincall.dto.response.ResponseAuthorizationDTO;
 import com.example.curtaincall.global.exception.AuthorizationException;
 import com.example.curtaincall.global.exception.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;

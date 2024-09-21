@@ -1,5 +1,9 @@
 package com.example.curtaincall.service;
 
+import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
+import com.example.curtaincall.dto.request.RequestUserDTO;
+import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
+import com.example.curtaincall.dto.response.ResponseUserDTO;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
 import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.PhoneBookRepository;
@@ -11,12 +15,14 @@ import com.example.curtaincall.dto.*;
 import com.example.curtaincall.global.SecretkeyManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
     private final PhoneBookRepository phoneBookRepository;
@@ -79,6 +85,17 @@ public class UserService {
             }
             phoneBookRepository.saveAll(phoneBooks);
         }
+    }
+    public void deleteContaceInPhoneNumber(String phoneNumber,
+                                           RequestRemovedNumberInPhoneBookDTO numbers){
+        User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(UserNotfoundException::new);
+
+        Arrays.stream(numbers.removedPhoneNumber()).forEach(number->
+                System.out.println(number));
+        Arrays.stream(
+                numbers.removedPhoneNumber()).toList().forEach(number-> phoneBookRepository.
+                        deleteByPhoneNumberAndUser(encrypt(number),user)
+                );
     }
 
     public ResponseUserDTO findUserByPhoneNumber(String phoneNumber) {
