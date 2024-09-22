@@ -5,7 +5,12 @@ import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
 import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 import com.example.curtaincall.dto.response.ResponseUserDTO;
+import com.example.curtaincall.global.TokenManager;
+import com.example.curtaincall.global.auth.jwt.JwtUtils;
+import com.example.curtaincall.global.userDetail.CustomUserDetailService;
+import com.example.curtaincall.global.userDetail.CustomUserDetails;
 import com.example.curtaincall.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +24,13 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final TokenManager tokenManager;
 
-    public UserController(UserService userService) {
+
+    public UserController(UserService userService, CustomUserDetailService customUserDetailService, JwtUtils jwtUtils, TokenManager tokenManager) {
         this.userService = userService;
+
+        this.tokenManager = tokenManager;
     }
 
     @PostMapping("/main/user")
@@ -40,15 +49,14 @@ public class UserController {
 
 
     @GetMapping("/main/user")
-    public ResponseEntity<ResponseUserDTO> getUser(@RequestParam("phoneNumber") String phoneNumber){
-        System.out.println("phoneNumber: "+phoneNumber);
-        ResponseUserDTO responseUserDTO = userService.findUserByPhoneNumber(phoneNumber);
+    public ResponseEntity<ResponseUserDTO> getUser(HttpServletRequest request){
+        ResponseUserDTO responseUserDTO=userService.findUserByPhoneNumber(tokenManager.getPhoneNumberByToken(request));
         return ResponseEntity.ok(responseUserDTO);
     }
 
     @GetMapping("/main/user/phoneAddressBookInfo")
-    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBook(@RequestParam("phoneNumber")String phoneNumber){
-        ResponsePhoneBookDTO responsePhoneBookDTO = userService.findPhoneBookByPhoneNumber(phoneNumber);
+    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBook(HttpServletRequest request){
+        ResponsePhoneBookDTO responsePhoneBookDTO=userService.findPhoneBookByPhoneNumber(tokenManager.getPhoneNumberByToken(request));
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
 

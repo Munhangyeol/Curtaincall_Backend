@@ -45,6 +45,7 @@ public class UserService {
             CurtaincallUserInfo userInfo = CurtaincallUserInfo.builder().id(user.getId())
                     .phoneNumber(user.getPhoneNumber())
                     .isCurtaincall(user.isCurtainCallOnAndOff())
+                    .role(user.getUserRole())
                     .build();
             return jwtUtils.create(userInfo);
         }
@@ -110,7 +111,7 @@ public class UserService {
     }
 
     public ResponseUserDTO findUserByPhoneNumber(String phoneNumber) {
-        User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(
                 UserNotfoundException::new
         );
         return ResponseUserDTO.builder()
@@ -120,7 +121,7 @@ public class UserService {
     }
 
     public ResponsePhoneBookDTO findPhoneBookByPhoneNumber(String phoneNumber) {
-        User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(
                 UserNotfoundException::new
         );
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);

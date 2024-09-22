@@ -1,12 +1,15 @@
 package com.example.curtaincall.global.auth.filter;
 
 import com.example.curtaincall.global.auth.jwt.JwtUtils;
+import com.example.curtaincall.global.userDetail.CustomUserDetailService;
+import com.example.curtaincall.global.userDetail.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,18 +20,16 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter{
     private final JwtUtils jwtUtils;
+    private final CustomUserDetailService customUserDetailService;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
-
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             log.info("doFilterInternal() - if문 통과");
             String token = authorizationHeader.substring(7);
             if(jwtUtils.validateToken(token)) {
                 Long id = jwtUtils.getUserId(token);
-
-                /*CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(id.toString());
-
+                CustomUserDetails userDetails =customUserDetailService.loadUserById(id);
                 if(userDetails != null) {
                     log.info("doFilterInternal() - userDetalis 존재");
                     //UserDetsils, Password, Role -> 접근권한 인증 Token 생성
@@ -38,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
                     //현재 Request의 Security Context에 접근권한 설정
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                     log.info("authentication: " + SecurityContextHolder.getContext().getAuthentication());
-                }*/
+                }
             }
         }
 

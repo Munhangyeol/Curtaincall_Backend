@@ -14,4 +14,5 @@ public class CurtaincallUserInfo {
     private String phoneNumber;
     private String nickName;
     private boolean isCurtaincall;
+    private String role;
 }
