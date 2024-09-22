@@ -32,6 +32,7 @@ public class JwtUtils implements AuthorizationProvider {
         Claims claims= Jwts.claims();
         claims.put("userId", userInfo.getId());
         claims.put("userPhoneNumber",userInfo.getPhoneNumber());
+        claims.put("role", userInfo.getRole());
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime tokenValidity = now.plusSeconds(accessTokenExpTime);
         return Jwts.builder()
