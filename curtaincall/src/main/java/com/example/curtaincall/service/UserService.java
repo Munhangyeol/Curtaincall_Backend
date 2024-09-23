@@ -70,23 +70,25 @@ public class UserService {
     }
 
     public void updateUser(RequestUserDTO requestUserDTO, String prePhoneNumber) {
-        User user = userRepository.findByPhoneNumber(encrypt(prePhoneNumber)).orElseThrow(
+        User user = userRepository.findByPhoneNumber(prePhoneNumber).orElseThrow(
                 UserNotfoundException::new
         );
-
         user.setNickName(requestUserDTO.nickName());
+        user.setCurtainCallOnAndOff(requestUserDTO.isCurtainCall());
         if(!requestUserDTO.phoneNumber().equals(prePhoneNumber)) {
             user.setPhoneNumber(encrypt(requestUserDTO.phoneNumber()));
         }
         userRepository.save(user);
     }
 
-    public void updatePhoneBook(Map<String, Contact> putRequestDTO, String prePhoneNumber) {
-        for (String phoneNumber : putRequestDTO.keySet()) {
-            User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
+    public void updatePhoneBook(Map<String, Contact> putRequestDTO, String userPhoneNumber) {
+
+            User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(
                     UserNotfoundException::new);
 
-            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(prePhoneNumber), user)
+        for (String phoneNumber : putRequestDTO.keySet()) {
+
+            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumber), user)
                     .orElseThrow(PhoneBookNotfoundException::new);
 
             for (PhoneBook phoneBook : phoneBooks) {
@@ -116,7 +118,7 @@ public class UserService {
         );
         return ResponseUserDTO.builder()
                 .nickName(user.getNickName())
-                .isCurtainCallOnAndOff(true)
+                .isCurtainCallOnAndOff(user.isCurtainCallOnAndOff())
                 .build();
     }
 

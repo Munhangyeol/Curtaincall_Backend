@@ -19,7 +19,6 @@ public class TokenManager {
     public String getPhoneNumberByToken(HttpServletRequest request){
         String phoneNumber = "";
         String authorizationHeader = request.getHeader("Authorization");
-
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
             if (jwtUtils.validateToken(token)) {

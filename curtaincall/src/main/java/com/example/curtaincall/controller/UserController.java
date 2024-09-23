@@ -25,11 +25,8 @@ public class UserController {
 
     private final UserService userService;
     private final TokenManager tokenManager;
-
-
-    public UserController(UserService userService, CustomUserDetailService customUserDetailService, JwtUtils jwtUtils, TokenManager tokenManager) {
+    public UserController(UserService userService,TokenManager tokenManager) {
         this.userService = userService;
-
         this.tokenManager = tokenManager;
     }
 
@@ -61,16 +58,17 @@ public class UserController {
     }
 
     @PutMapping("/main/user")
-    public String changeUser(@RequestParam("prePhoneNumber") String prePhoneNumber,
+    public String changeUser(HttpServletRequest request,
                                  @RequestBody RequestUserDTO requestUserDTO){
-        userService.updateUser(requestUserDTO,prePhoneNumber);
+        userService.updateUser(requestUserDTO,tokenManager.getPhoneNumberByToken(request));
         return "Successfull update user!";
     }
 
     @PutMapping("/main/user/phoneAddressBookInfo")
-    public String changeUserPhoneBook(@RequestParam("prePhoneNumber") String prePhoneNumber,
+    public String changeUserPhoneBook(HttpServletRequest request,
                                  @RequestBody Map<String,Contact> putRequestPhonebookDTO){
-            userService.updatePhoneBook(putRequestPhonebookDTO,prePhoneNumber);
+            userService.updatePhoneBook(putRequestPhonebookDTO,
+                    tokenManager.getPhoneNumberByToken(request));
         return "Successfull update AddressBook!";
     }
 
