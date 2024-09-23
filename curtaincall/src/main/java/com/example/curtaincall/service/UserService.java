@@ -102,7 +102,7 @@ public class UserService {
     }
     public void deleteContaceInPhoneNumber(String phoneNumber,
                                            RequestRemovedNumberInPhoneBookDTO numbers){
-        User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(UserNotfoundException::new);
+        User user = userRepository.findByPhoneNumber(phoneNumber).orElseThrow(UserNotfoundException::new);
 
         Arrays.stream(numbers.removedPhoneNumber()).forEach(number->
                 System.out.println(number));
@@ -147,7 +147,7 @@ public class UserService {
     }
 
     public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(String userPhoneNumber,String phoneNumberInPhoneBook){
-        User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
+        User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(UserNotfoundException::new);
         List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumberInPhoneBook), user)
                 .orElseThrow(PhoneBookNotfoundException::new);
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
@@ -158,7 +158,7 @@ public class UserService {
 
     }
     public ResponsePhoneBookDTO getPhoneBookWithRollback(String userPhoneNumber) {
-        User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
+        User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(UserNotfoundException::new);
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
 
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
@@ -167,7 +167,7 @@ public class UserService {
         return getResponsePhoneBookDTO(user, phoneBooks);
     }
     public void setAllOnPhoneBook(String userPhoneNumber) {
-        User user = userRepository.findByPhoneNumber(encrypt(userPhoneNumber)).orElseThrow(UserNotfoundException::new);
+        User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(UserNotfoundException::new);
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(true));
         phoneBookRepository.saveAll(phoneBooks);

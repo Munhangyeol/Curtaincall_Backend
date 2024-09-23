@@ -72,23 +72,17 @@ public class UserController {
         return "Successfull update AddressBook!";
     }
 
-    @GetMapping("/main/user/calling")
-    public ResponseEntity<List<Contact>> getCurrentUserInfo(@RequestParam("userPhoneNumber")String userPhoneNumber,
-                                     @RequestParam("postPhoneNumber")String postPhoneNumber){
-
-        return ResponseEntity.ok(userService.getCurrentUserInfo(userPhoneNumber, postPhoneNumber));
-    }
 
     @GetMapping("/main/user/setOff")
-    public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(@RequestParam("userPhoneNumber") String userPhoneNumber,
-                                                            @RequestParam("userPhoneBookNumber")String userPhoneBookNumber){
-        return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userPhoneNumber, userPhoneBookNumber));
+    public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(HttpServletRequest request,
+                                                           @RequestBody Map<String,String> userPhoneBookNumberMap){
+        String userPhoneNumber=tokenManager.getPhoneNumberByToken(request);
+        return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userPhoneNumber, userPhoneBookNumberMap.get("userPhoneBookNumber")));
     }
     @PostMapping("main/user/phoneAddressBookInfo/remove")
-    public String removeNumberInPhoneBook(@RequestParam("phoneNumber") String phoneNumber,
+    public String removeNumberInPhoneBook(HttpServletRequest request,
                                           @RequestBody RequestRemovedNumberInPhoneBookDTO removedNumberDTO){
-
-        userService.deleteContaceInPhoneNumber(phoneNumber,removedNumberDTO);
+        userService.deleteContaceInPhoneNumber(tokenManager.getPhoneNumberByToken(request),removedNumberDTO);
         return "성공적으로 삭제 되었습니다.";
     }
 
@@ -96,14 +90,15 @@ public class UserController {
 
 
     @GetMapping("/main/user/rollback")
-    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback(@RequestParam("phoneNumber")String phoneNumber) {
-        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(phoneNumber);
+    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback(HttpServletRequest request) {
+
+        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(tokenManager.getPhoneNumberByToken(request));
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
 
     @GetMapping("/main/user/setAllOn")
-    public String setAllOnPhoneBook(@RequestParam("phoneNumber")String phoneNumber) {
-    userService.setAllOnPhoneBook(phoneNumber);
+    public String setAllOnPhoneBook(HttpServletRequest request) {
+    userService.setAllOnPhoneBook(tokenManager.getPhoneNumberByToken(request));
         return "커튼콜 기능 일괄 활성화 되었습니다";
     }
 
