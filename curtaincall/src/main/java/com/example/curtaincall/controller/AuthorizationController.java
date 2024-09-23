@@ -9,6 +9,8 @@ import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 public class AuthorizationController {
@@ -19,23 +21,23 @@ public class AuthorizationController {
 
 
 
-    @GetMapping("authorization/send-one")
-    public SingleMessageSentResponse sendOne(@RequestParam("phoneNumber")String phoneNumber) {
+    @PostMapping("authorization/send-one")
+    public SingleMessageSentResponse sendOne(@RequestBody Map<String,String> phoneNumberMap) {
+       String phoneNumber= phoneNumberMap.get("phoneNumber");
         if(userRepository.findByPhoneNumber(phoneNumber).isPresent()){
             throw new UserAlreadyExistsException("This user is already existed");
         }
         return curtainCallMessageService.makeMessageResponse(phoneNumber);
     }
-    @GetMapping("authorization/configNumber")
-    public ResponseEntity<Boolean> configNumber(@RequestParam("phoneNumber")String phoneNumber,
+    @PostMapping("authorization/configNumber")
+    public ResponseEntity<Boolean> configNumber(@RequestBody Map<String,String> phoneNumberMap,
                                                 @RequestParam("configNumber") String configNumber) {
-        Boolean configResult = curtainCallMessageService.configNumber(phoneNumber, configNumber);
+        Boolean configResult = curtainCallMessageService.configNumber(phoneNumberMap.get("phoneNumber"), configNumber);
 
         return ResponseEntity.ok(configResult);
     }
-    @GetMapping("authorization/configUser")
-    public ResponseEntity<Boolean> configUser(@RequestParam("phoneNumber")String phoneNumber) {
-//        authorizaionService.isUser(phoneNumber);
-        return ResponseEntity.ok((authorizaionService.isUser(phoneNumber)));
+    @PostMapping("authorization/configUser")
+    public ResponseEntity<Boolean> configUser(@RequestBody Map<String,String> phoneNumberMap) {
+        return ResponseEntity.ok((authorizaionService.isUser(phoneNumberMap.get("phoneNumber"))));
     }
 }

@@ -25,7 +25,7 @@ public class CallLogService {
         this.secretkeyManager = secretkeyManager;
     }
     public ResponseRecentCallLogDTO findRecentCallContact(String userPhoneNumber,RequestRecentCallLogDTO recentPhoneNumbers){
-        User user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(userPhoneNumber)).orElseThrow(
+        User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(
                 UserNotfoundException::new);
         List<CallLogInfo> callLogInfos = new ArrayList<>();
         for (String phoneNumber : recentPhoneNumbers.phoneNumbers()) {
