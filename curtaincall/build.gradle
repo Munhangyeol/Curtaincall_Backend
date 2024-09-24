@@ -49,3 +49,9 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+processResources.dependsOn('copySecret')
+
+task copySecret(type: Copy) {
+	from ('../backend-submodule/application-secret.properties')
+	into ('./src/main/resources/application-secret.properties')
+}
