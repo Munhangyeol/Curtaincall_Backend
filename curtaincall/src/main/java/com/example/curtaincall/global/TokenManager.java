@@ -12,10 +12,7 @@ import org.springframework.stereotype.Component;
 public class TokenManager {
     public JwtUtils jwtUtils;
     public CustomUserDetailService customUserDetailsService;
-    public String phoneNumberBytoken(String token){
-        Long id = jwtUtils.getUserId(token);
-        return customUserDetailsService.loadUserById(id).getPhoneNumber();
-    }
+
     public String getPhoneNumberByToken(HttpServletRequest request){
         String phoneNumber = "";
         String authorizationHeader = request.getHeader("Authorization");
