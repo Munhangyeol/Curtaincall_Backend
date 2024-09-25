@@ -5,15 +5,13 @@ import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
 import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 import com.example.curtaincall.dto.response.ResponseUserDTO;
-import com.example.curtaincall.global.TokenManager;
-import com.example.curtaincall.global.auth.jwt.JwtUtils;
-import com.example.curtaincall.global.userDetail.CustomUserDetailService;
 import com.example.curtaincall.global.userDetail.CustomUserDetails;
 import com.example.curtaincall.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,10 +22,9 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final TokenManager tokenManager;
-    public UserController(UserService userService,TokenManager tokenManager) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.tokenManager = tokenManager;
+
     }
 
     @PostMapping("/main/user")
@@ -46,43 +43,42 @@ public class UserController {
 
 
     @GetMapping("/main/user")
-    public ResponseEntity<ResponseUserDTO> getUser(HttpServletRequest request){
-        ResponseUserDTO responseUserDTO=userService.findUserByPhoneNumber(tokenManager.getPhoneNumberByToken(request));
+    public ResponseEntity<ResponseUserDTO> getUser(@AuthenticationPrincipal CustomUserDetails userDetails){
+        ResponseUserDTO responseUserDTO=userService.findUserByPhoneNumber(userDetails.getPhoneNumber());
         return ResponseEntity.ok(responseUserDTO);
     }
 
     @GetMapping("/main/user/phoneAddressBookInfo")
-    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBook(HttpServletRequest request){
-        ResponsePhoneBookDTO responsePhoneBookDTO=userService.findPhoneBookByPhoneNumber(tokenManager.getPhoneNumberByToken(request));
+    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails){
+        ResponsePhoneBookDTO responsePhoneBookDTO=userService.findPhoneBookByPhoneNumber(userDetails.getPhoneNumber());
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
 
     @PutMapping("/main/user")
-    public String changeUser(HttpServletRequest request,
+    public String changeUser(@AuthenticationPrincipal CustomUserDetails userDetails,
                                  @RequestBody RequestUserDTO requestUserDTO){
-        userService.updateUser(requestUserDTO,tokenManager.getPhoneNumberByToken(request));
+        userService.updateUser(requestUserDTO,userDetails.getPhoneNumber());
         return "Successfull update user!";
     }
 
     @PutMapping("/main/user/phoneAddressBookInfo")
-    public String changeUserPhoneBook(HttpServletRequest request,
+    public String changeUserPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails,
                                  @RequestBody Map<String,Contact> putRequestPhonebookDTO){
             userService.updatePhoneBook(putRequestPhonebookDTO,
-                    tokenManager.getPhoneNumberByToken(request));
+                    userDetails.getPhoneNumber());
         return "Successfull update AddressBook!";
     }
 
 
     @GetMapping("/main/user/setOff")
-    public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(HttpServletRequest request,
+    public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                            @RequestBody Map<String,String> userPhoneBookNumberMap){
-        String userPhoneNumber=tokenManager.getPhoneNumberByToken(request);
-        return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userPhoneNumber, userPhoneBookNumberMap.get("userPhoneBookNumber")));
+        return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userDetails.getPhoneNumber(), userPhoneBookNumberMap.get("userPhoneBookNumber")));
     }
     @PostMapping("main/user/phoneAddressBookInfo/remove")
-    public String removeNumberInPhoneBook(HttpServletRequest request,
+    public String removeNumberInPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @RequestBody RequestRemovedNumberInPhoneBookDTO removedNumberDTO){
-        userService.deleteContaceInPhoneNumber(tokenManager.getPhoneNumberByToken(request),removedNumberDTO);
+        userService.deleteContaceInPhoneNumber(userDetails.getPhoneNumber(),removedNumberDTO);
         return "성공적으로 삭제 되었습니다.";
     }
 
@@ -90,15 +86,15 @@ public class UserController {
 
 
     @GetMapping("/main/user/rollback")
-    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback(HttpServletRequest request) {
-
-        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(tokenManager.getPhoneNumberByToken(request));
+    public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback() {
+        CustomUserDetails userDetails= (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(userDetails.getPhoneNumber());
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
 
     @GetMapping("/main/user/setAllOn")
-    public String setAllOnPhoneBook(HttpServletRequest request) {
-    userService.setAllOnPhoneBook(tokenManager.getPhoneNumberByToken(request));
+    public String setAllOnPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    userService.setAllOnPhoneBook(userDetails.getPhoneNumber());
         return "커튼콜 기능 일괄 활성화 되었습니다";
     }
 
