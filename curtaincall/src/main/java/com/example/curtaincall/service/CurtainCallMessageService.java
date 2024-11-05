@@ -34,7 +34,7 @@ public class CurtainCallMessageService {
         this.messageService = NurigoApp.INSTANCE.initialize(api_key, api_secretkey, "https://api.coolsms.co.kr");
     }
     public SingleMessageSentResponse makeMessageResponse(String recievePhoneNumber){
-        if(redisTemplate.opsForValue().get(recievePhoneNumber)!=null)
+        if(isExistPhoneNumberInRedis(recievePhoneNumber))
             redisTemplate.delete(recievePhoneNumber);
         makeConfigRandomNumber(recievePhoneNumber);
         Message message = setMessage(recievePhoneNumber);
@@ -42,10 +42,11 @@ public class CurtainCallMessageService {
         return this.messageService.sendOne(new SingleMessageSendingRequest(message));
     }
 
+    private boolean isExistPhoneNumberInRedis(String recievePhoneNumber) {
+        return redisTemplate.opsForValue().get(recievePhoneNumber) != null;
+    }
+
     public Boolean configNumber(String phoneNumber,String configNumber){
-        System.out.println(redisTemplate.opsForValue().get(phoneNumber)+configNumber);
-        System.out.println(redisTemplate.opsForValue().get(phoneNumber)+configNumber);
-        System.out.println(Objects.equals(redisTemplate.opsForValue().get(phoneNumber), configNumber));
         return Objects.equals(redisTemplate.opsForValue().get(phoneNumber), configNumber);
     }
     @NotNull

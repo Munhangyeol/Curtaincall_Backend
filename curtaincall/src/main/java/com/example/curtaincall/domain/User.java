@@ -11,7 +11,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-//@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id
@@ -28,10 +29,7 @@ public class User {
     @ColumnDefault("'USER'")
     private String userRole;
 
-//    @Builder
-    public User() {
 
-    }
     @Builder
     public User(@NotNull String phoneNumber, String nickName, boolean isCurtainCallOnAndOff){
         this.phoneNumber=phoneNumber;
