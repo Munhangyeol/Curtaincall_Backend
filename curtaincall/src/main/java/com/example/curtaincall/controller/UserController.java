@@ -47,7 +47,6 @@ public class UserController {
         ResponseUserDTO responseUserDTO=userService.findUserByPhoneNumber(userDetails.getPhoneNumber());
         return ResponseEntity.ok(responseUserDTO);
     }
-
     @GetMapping("/main/user/phoneAddressBookInfo")
     public ResponseEntity<ResponsePhoneBookDTO> getPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails){
         ResponsePhoneBookDTO responsePhoneBookDTO=userService.findPhoneBookByPhoneNumber(userDetails.getPhoneNumber());
