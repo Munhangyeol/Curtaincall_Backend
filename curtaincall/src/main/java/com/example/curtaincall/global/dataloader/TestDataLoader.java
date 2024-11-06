@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+//CommandLiner를 사용해서
+//스프링 애플리케이션이 완전히 시작되고, 모든 Bean이 초기화된 상태에서 CommandLineRunner가 실행됩니다
 @Component
 @Profile("test")
 @RequiredArgsConstructor

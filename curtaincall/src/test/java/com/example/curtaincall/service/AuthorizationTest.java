@@ -6,8 +6,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class AuthorizationTest {
     @Autowired
     private AuthorizaionService authorizaionService;
@@ -21,7 +23,6 @@ public class AuthorizationTest {
         //given
         RequestUserDTO requestUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
                 .nickName("문한결").build();
-        userService.saveUser(requestUserDTO);
         //when
         Assertions.assertEquals(true, authorizaionService.isUser(requestUserDTO.phoneNumber()));
     }
