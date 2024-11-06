@@ -5,6 +5,7 @@ import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
 import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 import com.example.curtaincall.dto.response.ResponseUserDTO;
+import com.example.curtaincall.global.exception.UserAlreadyExistsException;
 import com.example.curtaincall.global.userDetail.CustomUserDetails;
 import com.example.curtaincall.service.UserService;
 import org.springframework.http.HttpHeaders;
@@ -82,12 +83,10 @@ public class UserController {
     }
 
 
-
-
     @GetMapping("/main/user/rollback")
     public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback() {
         CustomUserDetails userDetails= (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithRollback(userDetails.getPhoneNumber());
+        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithSetAllOff(userDetails.getPhoneNumber());
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
 

@@ -29,15 +29,14 @@ public class CallLogService {
                 UserNotfoundException::new);
         List<CallLogInfo> callLogInfos = new ArrayList<>();
         for (String phoneNumber : recentPhoneNumbers.phoneNumbers()) {
+
             List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(
                     secretkeyManager.encrypt(phoneNumber), user)
                     .orElseThrow(PhoneBookNotfoundException::new);
             if(phoneBooks.isEmpty())
-            {
-                callLogInfos.add(CallLogInfo.builder().
-                        nickname("").
-                        phoneNumber(phoneNumber).build());
-            }
+                throw new PhoneBookNotfoundException();
+//            System.out.println("!!!!!"+phoneBooks);
+
             for (PhoneBook phoneBook : phoneBooks) {
                 callLogInfos.add(CallLogInfo.builder().
                         nickname(phoneBook.getNickName()).

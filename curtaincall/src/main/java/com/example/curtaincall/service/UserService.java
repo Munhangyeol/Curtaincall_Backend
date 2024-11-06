@@ -7,6 +7,7 @@ import com.example.curtaincall.dto.response.ResponseUserDTO;
 import com.example.curtaincall.global.auth.CurtaincallUserInfo;
 import com.example.curtaincall.global.auth.jwt.JwtUtils;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
+import com.example.curtaincall.global.exception.UserAlreadyExistsException;
 import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.repository.PhoneBookRepository;
 import com.example.curtaincall.repository.RecentCallLogRepository;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+//TODO UserService에서 phoneBook파트와 분리하기
 @Service
 @Slf4j
 @Transactional
@@ -49,7 +51,8 @@ public class UserService {
                     .build();
             return jwtUtils.create(userInfo);
         }
-        return "Not Save";
+        throw  new UserAlreadyExistsException();
+
     }
 
 
@@ -157,7 +160,7 @@ public class UserService {
                 .build()).collect(Collectors.toList());
 
     }
-    public ResponsePhoneBookDTO getPhoneBookWithRollback(String userPhoneNumber) {
+    public ResponsePhoneBookDTO getPhoneBookWithSetAllOff(String userPhoneNumber) {
         User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(UserNotfoundException::new);
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
 

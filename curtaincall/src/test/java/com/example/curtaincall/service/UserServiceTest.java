@@ -2,90 +2,89 @@ package com.example.curtaincall.service;
 
 import com.example.curtaincall.dto.Contact;
 import com.example.curtaincall.dto.request.RequestUserDTO;
+import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
+import com.example.curtaincall.dto.response.ResponseUserDTO;
+import com.example.curtaincall.global.SecretkeyManager;
+import com.example.curtaincall.global.exception.UserAlreadyExistsException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
-
+//TODO user Update, PhoneBook Update, user delete 이 세개의 테스트 코드만 추가하면 됨
 @SpringBootTest
-@Transactional
+@ActiveProfiles("test")
 public class UserServiceTest {
     @Autowired
     private UserService userService;
-    @DisplayName("user테이블에 phoneNumber와 이름이 정상적으로 저장하고 조회되는지를 확인한다.")
-    @Test
-    public void createUser(){
-        createUserAndPhoneBook();
-        //then
-        Assertions.assertNotNull(userService.findUserByPhoneNumber("01023326094"));
-    }
+    @Autowired
+    private SecretkeyManager secretkeyManager;
+
     @DisplayName("user테이블에 없는 번호로 찾으면 예외가 발생한다.")
     @Test
     public void findByPhoneNumberNotInUserTable(){
-        createUserAndPhoneBook();
-        //then
-        Assertions.assertThrows(RuntimeException.class,()->userService.findUserByPhoneNumber("01023326093"));
-    }
 
-    @DisplayName("phoneBook테이블에 전화번호 정보들이 잘 저장 되었는지 확인.")
+        Assertions.assertThrows(RuntimeException.class, () -> userService.findUserByPhoneNumber(secretkeyManager.encrypt("01023326093")));
+    }
+    @DisplayName("user테이블에 있는 번호로 찾으면 user가 잘 반환됨")
     @Test
-    public void createPhoneBook(){
-        createUserAndPhoneBook();
-        //then
-        Assertions.assertNotNull(userService.findPhoneBookByPhoneNumber("01023326094"));
+    public void findByPhoneNumberInUserTable(){
+        Assertions.assertNotNull(userService.findUserByPhoneNumber(secretkeyManager.encrypt("01023326094")));
     }
-
-
-
-    @DisplayName("user의 이름이 없데이트가 잘 되는지를 확인.")
+    @DisplayName("PhoneBook테이블에 있는 번호로 찾으면 잘 반환됨.")
     @Test
-    public void updateUserWhenUpdateName(){
-        //given
-        RequestUserDTO requestUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
-                .nickName("문한결").build();
-        userService.saveUser(requestUserDTO);
-        RequestUserDTO requestNewUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
-                .nickName("문한별").build();
-        userService.updateUser(requestNewUserDTO, "01023326094");
-        Assertions.assertEquals("문한별", userService.findUserByPhoneNumber("01023326094").nickName());
+    public void findByPhoneNumberInPhoneBookTable(){
+        Assertions.assertNotNull(userService.findPhoneBookByPhoneNumber(secretkeyManager.encrypt("01023326094")));
     }
-    @DisplayName("user의 번호가 업데이트가 잘 되는지를 확인.")
+    @DisplayName("user테이블에 이미 있는 번호를 저장 하면 예외가 발생한다.")
     @Test
-    public void updateUserWhenUpdatePhoneNumber(){
-        //given
-        RequestUserDTO requestUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
-                .nickName("문한결").build();
-        userService.saveUser(requestUserDTO);
-        RequestUserDTO requestNewUserDTO = RequestUserDTO.builder().phoneNumber("01033326094")
-                .nickName("문한결").build();
-        userService.updateUser(requestNewUserDTO, "01023326094");
-        Assertions.assertNotNull(userService.findUserByPhoneNumber("01033326094"));
+    public void saveByPhoneNumberInUserTable(){Assertions.assertThrows(UserAlreadyExistsException.class,()->userService.saveUser(RequestUserDTO.builder()
+                .phoneNumber("01023326094").nickName("nickname").isCurtainCall(true).build()));
+    }
+    @DisplayName("user테이블에 없는 번호를 저장 하면 잘 동작한다.")
+    @Test
+    public void saveByPhoneNumberUserTable(){
+        Assertions.assertNotNull(UserAlreadyExistsException.class,()->userService.saveUser(RequestUserDTO.builder()
+            .phoneNumber("01023326091").nickName("nickname").isCurtainCall(true).build()));
     }
 
-    private void createUserAndPhoneBook() {
-        //given
-        RequestUserDTO requestUserDTO = RequestUserDTO.builder().phoneNumber("01023326094")
-                .nickName("문한결").build();
-        userService.saveUser(requestUserDTO);
-        Map<String, List<Contact>> maps = new HashMap<>();
-        Contact contact1 = new Contact("조한흠", "01012345678",false);
-        Contact contact2 = new Contact("박성준", "01098765678",false);
-        List<Contact> contacts = new ArrayList<>();
-        contacts.add(contact1);
-        contacts.add(contact2);
-        maps.put("01023326094", contacts);
-        //when
-        userService.saveUserPhoneBooks(maps);
+    @Transactional
+    @DisplayName("01023326094 user의 번호들을 일괄 on으로 전환")
+    @Test
+    public void setAllOnCurtaincall(){
+        userService.setAllOnPhoneBook(secretkeyManager.encrypt("01023326094"));
+        ResponsePhoneBookDTO phoneBookByPhoneNumber = userService.findPhoneBookByPhoneNumber(secretkeyManager.encrypt("01023326094"));
+        phoneBookByPhoneNumber.getResponse().get("01023326094").forEach(phoneBook->
+                Assertions.assertEquals(phoneBook.getIsCurtainCallOnAndOff(),true));
     }
+    @Transactional
+    @DisplayName("01023326094 user의 번호들을 일괄 off로 전환")
+    @Test
+    public void setAllOffCurtaincall(){
+        ResponsePhoneBookDTO phoneBookByPhoneNumber = userService.getPhoneBookWithSetAllOff(secretkeyManager.encrypt("01023326094"));
+        phoneBookByPhoneNumber.getResponse().get("01023326094").forEach(phoneBook->
+                Assertions.assertEquals(phoneBook.getIsCurtainCallOnAndOff(),false));
+    }
+    @Transactional
+    @DisplayName("01023326094 user의 특정 번호들을  off로 전환")
+    @Test
+    public void setOffCurtaincall(){
+     userService.getUserInPhoneBookAndSetOff(secretkeyManager.encrypt("01023326094"),
+                "01044444444");
+        ResponsePhoneBookDTO phoneBookByPhoneNumber1 = userService.findPhoneBookByPhoneNumber(secretkeyManager.encrypt("01023326094"));
+        Optional<Contact> first = phoneBookByPhoneNumber1.getResponse().get("01023326094")
+                .stream().filter(phoneBook -> Objects.equals(phoneBook.getPhoneNumber(), "01044444444"))
+                .findFirst();
+        Assertions.assertEquals(first.get().getIsCurtainCallOnAndOff(),false);
+    }
+
+
 
 
 }
