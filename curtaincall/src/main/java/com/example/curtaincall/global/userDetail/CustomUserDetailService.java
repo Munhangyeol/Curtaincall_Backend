@@ -24,6 +24,7 @@ public class CustomUserDetailService implements UserDetailsService {
     public CustomUserDetails loadUserById(Long id){
         User user=userRepository.findById(id).orElseThrow(UserNotfoundException::new);
         CurtaincallUserInfo userInfo=CurtaincallUserInfo.builder().role(user.getUserRole())
+                .id(user.getId())
                 .phoneNumber(user.getPhoneNumber())
                 .isCurtaincall(user.isCurtainCallOnAndOff())
                 .nickName(user.getNickName()).build();

@@ -31,6 +31,9 @@ public class CustomUserDetails implements UserDetails {
     public String getPhoneNumber(){
         return userInfo.getPhoneNumber();
     }
+    public Long getId(){
+        return userInfo.getId();
+    }
 
     @Override
     public String getPassword() {

@@ -13,11 +13,11 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(UserListener.class)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "user_id")
     private Long id;
     @NonNull
     private String phoneNumber;
@@ -29,6 +29,8 @@ public class User {
     @ColumnDefault("'USER'")
     private String userRole;
 
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private List<PhoneBook> phoneBooks;
 
     @Builder
     public User(@NotNull String phoneNumber, String nickName, boolean isCurtainCallOnAndOff){
@@ -39,5 +41,6 @@ public class User {
 
 
 
-
 }
+
+

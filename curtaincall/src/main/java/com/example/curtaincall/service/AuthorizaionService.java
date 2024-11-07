@@ -10,15 +10,13 @@ import java.util.Optional;
 @Service
 public class AuthorizaionService {
     private final UserRepository userRepository;
-    private final SecretkeyManager secretkeyManager;
 
 
     public AuthorizaionService(UserRepository userRepository, SecretkeyManager secretkeyManager) {
         this.userRepository = userRepository;
-        this.secretkeyManager = secretkeyManager;
     }
     public Boolean isUser(String phoneNumber){
-        Optional<User> user = userRepository.findByPhoneNumber(secretkeyManager.encrypt(phoneNumber));
+        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
         return user.isPresent();
     }
 }

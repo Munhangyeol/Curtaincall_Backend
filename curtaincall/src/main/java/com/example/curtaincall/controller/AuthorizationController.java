@@ -1,12 +1,14 @@
 package com.example.curtaincall.controller;
 
 import com.example.curtaincall.global.exception.UserAlreadyExistsException;
+import com.example.curtaincall.global.userDetail.CustomUserDetails;
 import com.example.curtaincall.repository.UserRepository;
 import com.example.curtaincall.service.AuthorizaionService;
 import com.example.curtaincall.service.CurtainCallMessageService;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -18,8 +20,6 @@ public class AuthorizationController {
     private final CurtainCallMessageService curtainCallMessageService;
     private final AuthorizaionService authorizaionService;
     private final UserRepository userRepository;
-
-
 
     @PostMapping("authorization/send-one")
     public SingleMessageSentResponse sendOne(@RequestBody Map<String,String> phoneNumberMap) {
@@ -33,11 +33,10 @@ public class AuthorizationController {
     public ResponseEntity<Boolean> configNumber(@RequestBody Map<String,String> phoneNumberMap,
                                                 @RequestParam("configNumber") String configNumber) {
         Boolean configResult = curtainCallMessageService.configNumber(phoneNumberMap.get("phoneNumber"), configNumber);
-
         return ResponseEntity.ok(configResult);
     }
-    @PostMapping("authorization/configUser")
-    public ResponseEntity<Boolean> configUser(@RequestBody Map<String,String> phoneNumberMap) {
-        return ResponseEntity.ok((authorizaionService.isUser(phoneNumberMap.get("phoneNumber"))));
+    @GetMapping("authorization/configUser")
+    public ResponseEntity<Boolean> configUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok((authorizaionService.isUser(userDetails.getPhoneNumber())));
     }
 }

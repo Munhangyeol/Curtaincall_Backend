@@ -45,19 +45,19 @@ public class UserController {
 
     @GetMapping("/main/user")
     public ResponseEntity<ResponseUserDTO> getUser(@AuthenticationPrincipal CustomUserDetails userDetails){
-        ResponseUserDTO responseUserDTO=userService.findUserByPhoneNumber(userDetails.getPhoneNumber());
+        ResponseUserDTO responseUserDTO=userService.findUser(userDetails);
         return ResponseEntity.ok(responseUserDTO);
     }
     @GetMapping("/main/user/phoneAddressBookInfo")
     public ResponseEntity<ResponsePhoneBookDTO> getPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails){
-        ResponsePhoneBookDTO responsePhoneBookDTO=userService.findPhoneBookByPhoneNumber(userDetails.getPhoneNumber());
+        ResponsePhoneBookDTO responsePhoneBookDTO=userService.findPhoneBook(userDetails);
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
 
     @PutMapping("/main/user")
     public String changeUser(@AuthenticationPrincipal CustomUserDetails userDetails,
                                  @RequestBody RequestUserDTO requestUserDTO){
-        userService.updateUser(requestUserDTO,userDetails.getPhoneNumber());
+        userService.updateUser(requestUserDTO,userDetails);
         return "Successfull update user!";
     }
 
@@ -65,7 +65,7 @@ public class UserController {
     public String changeUserPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails,
                                  @RequestBody Map<String,Contact> putRequestPhonebookDTO){
             userService.updatePhoneBook(putRequestPhonebookDTO,
-                    userDetails.getPhoneNumber());
+                    userDetails);
         return "Successfull update AddressBook!";
     }
 
@@ -73,12 +73,12 @@ public class UserController {
     @GetMapping("/main/user/setOff")
     public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                            @RequestBody Map<String,String> userPhoneBookNumberMap){
-        return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userDetails.getPhoneNumber(), userPhoneBookNumberMap.get("userPhoneBookNumber")));
+        return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userDetails, userPhoneBookNumberMap.get("userPhoneBookNumber")));
     }
     @PostMapping("main/user/phoneAddressBookInfo/remove")
     public String removeNumberInPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails,
                                           @RequestBody RequestRemovedNumberInPhoneBookDTO removedNumberDTO){
-        userService.deleteContaceInPhoneNumber(userDetails.getPhoneNumber(),removedNumberDTO);
+        userService.deleteContactInPhoneNumber(userDetails,removedNumberDTO);
         return "성공적으로 삭제 되었습니다.";
     }
 
@@ -86,13 +86,13 @@ public class UserController {
     @GetMapping("/main/user/rollback")
     public ResponseEntity<ResponsePhoneBookDTO> getPhoneBookWithRollback() {
         CustomUserDetails userDetails= (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithSetAllOff(userDetails.getPhoneNumber());
+        ResponsePhoneBookDTO responsePhoneBookDTO = userService.getPhoneBookWithSetAllOff(userDetails);
         return ResponseEntity.ok(responsePhoneBookDTO);
     }
 
     @GetMapping("/main/user/setAllOn")
     public String setAllOnPhoneBook(@AuthenticationPrincipal CustomUserDetails userDetails) {
-    userService.setAllOnPhoneBook(userDetails.getPhoneNumber());
+    userService.setAllOnPhoneBook(userDetails);
         return "커튼콜 기능 일괄 활성화 되었습니다";
     }
 
