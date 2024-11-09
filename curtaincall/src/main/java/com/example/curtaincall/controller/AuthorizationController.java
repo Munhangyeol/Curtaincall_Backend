@@ -37,6 +37,6 @@ public class AuthorizationController {
     }
     @GetMapping("authorization/configUser")
     public ResponseEntity<Boolean> configUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok((authorizaionService.isUser(userDetails.getPhoneNumber())));
+        return ResponseEntity.ok((authorizaionService.isUser(userDetails)));
     }
 }
