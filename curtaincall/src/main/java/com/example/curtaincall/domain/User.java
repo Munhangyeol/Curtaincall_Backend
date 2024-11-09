@@ -29,7 +29,7 @@ public class User {
     @ColumnDefault("'USER'")
     private String userRole;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<PhoneBook> phoneBooks;
 
     @Builder
