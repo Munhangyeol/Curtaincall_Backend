@@ -119,6 +119,7 @@ public class UserService {
                 UserNotfoundException::new
         );
         return ResponseUserDTO.builder()
+                .phoneNumber(decrypt(user.getPhoneNumber()))
                 .nickName(user.getNickName())
                 .isCurtainCallOnAndOff(user.isCurtainCallOnAndOff())
                 .build();
