@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 
-//TODO user Update, PhoneBook Update, user delete 이 세개의 테스트 코드만 추가하면 됨
 @SpringBootTest
 @ActiveProfiles("test")
 public class UserServiceTest {
