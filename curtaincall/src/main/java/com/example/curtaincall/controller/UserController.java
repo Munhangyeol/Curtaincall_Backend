@@ -70,7 +70,7 @@ public class UserController {
     }
 
 
-    @GetMapping("/main/user/setOff")
+    @PostMapping("/main/user/setOff")
     public ResponseEntity<List<ResponseUserDTO>> getPhoneBookUser(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                            @RequestBody Map<String,String> userPhoneBookNumberMap){
         return ResponseEntity.ok(userService.getUserInPhoneBookAndSetOff(userDetails, userPhoneBookNumberMap.get("userPhoneBookNumber")));
