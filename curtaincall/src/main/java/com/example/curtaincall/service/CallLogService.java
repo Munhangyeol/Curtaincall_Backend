@@ -10,6 +10,7 @@ import com.example.curtaincall.repository.PhoneBookRepository;
 import com.example.curtaincall.dto.request.RequestRecentCallLogDTO;
 import com.example.curtaincall.dto.response.ResponseRecentCallLogDTO;
 import com.example.curtaincall.repository.UserRepository;
+import okhttp3.Call;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,8 +35,9 @@ public class CallLogService {
                     secretkeyManager.encrypt(phoneNumber), user)
                     .orElseThrow(PhoneBookNotfoundException::new);
             if(phoneBooks.isEmpty())
-                throw new PhoneBookNotfoundException();
-//            System.out.println("!!!!!"+phoneBooks);
+                callLogInfos.add(CallLogInfo.builder().phoneNumber(phoneNumber)
+                        .nickname("Unknown!!")
+                        .build());
 
             for (PhoneBook phoneBook : phoneBooks) {
                 callLogInfos.add(CallLogInfo.builder().
