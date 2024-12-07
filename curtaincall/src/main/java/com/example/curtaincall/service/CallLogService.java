@@ -35,6 +35,9 @@ public class CallLogService {
                     secretkeyManager.encrypt(phoneNumber), user)
                     .orElseThrow(PhoneBookNotfoundException::new);
             if(phoneBooks.isEmpty())
+                throw new PhoneBookNotfoundException();
+            System.out.println(phoneBooks);
+            if(phoneBooks.isEmpty())
                 callLogInfos.add(CallLogInfo.builder().phoneNumber(phoneNumber)
                         .nickname("Unknown!!")
                         .build());
