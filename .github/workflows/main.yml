@@ -43,11 +43,11 @@ jobs:
       - name: Docker 이미지 생성 및 DockerHub에 푸시  # Docker 이미지를 빌드하고 DockerHub에 푸시합니다
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}  # DockerHub 로그인
-          cd ./dev-route/  # dev-route 디렉토리로 이동
+          cd ./curtaincall/  # dev-route 디렉토리로 이동
           docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache \
             --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
             --push \
-            -t ${{ secrets.DOCKER_REPO }}/devroute-server:${{ github.sha }} .  # Docker Buildx 사용
+            -t ${{ secrets.DOCKER_REPO }}/curtaincall:${{ github.sha }} .  # Docker Buildx 사용
 
       - name: EC2에서 이미지 pull 후 컨테이너 실행  # EC2 서버에서 Docker 이미지 pull 후 컨테이너 실행
         uses: appleboy/ssh-action@master  # EC2 서버에 SSH 접속 후 명령 실행
