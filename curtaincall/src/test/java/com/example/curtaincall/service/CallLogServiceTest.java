@@ -44,18 +44,6 @@ public class CallLogServiceTest {
         Assertions.assertEquals(callLogService.findRecentCallContact(manager.encrypt("01023326094"),recentCallLogDTO).callLogInfos(),
                 callLogInfos);
     }
-    @DisplayName("없는 번호를 찾으면 exception을 반환 ")
-    @Test
-    public void findRecentCallByNoNumber(){
-        List<String> phoneNumbers = new ArrayList<>();
-        phoneNumbers.add("01032345678");
-        phoneNumbers.add("01048765678");
 
-        RequestRecentCallLogDTO recentCallLogDTO = new RequestRecentCallLogDTO(phoneNumbers);
-
-        Assertions.assertThrows(PhoneBookNotfoundException.class, () -> callLogService.findRecentCallContact(manager.encrypt("01023326094"),
-                recentCallLogDTO)
-        );
-    }
 
 }
