@@ -35,7 +35,7 @@ jobs:
 
       - name: Spring 프로젝트 빌드  # Spring 프로젝트를 빌드합니다
         run: |
-          cd ./dev-route/
+          cd ./curtaincall/
           chmod +x ./gradlew  # gradlew 파일에 실행 권한 부여
           ./gradlew clean build -x test  # 테스트 제외하고 빌드 실행
 
