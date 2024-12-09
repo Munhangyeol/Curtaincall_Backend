@@ -1,5 +1,6 @@
 package com.example.curtaincall.controller;
 
+import com.example.curtaincall.global.SecretkeyManager;
 import com.example.curtaincall.global.exception.UserAlreadyExistsException;
 import com.example.curtaincall.global.userDetail.CustomUserDetails;
 import com.example.curtaincall.repository.UserRepository;
@@ -20,11 +21,12 @@ public class AuthorizationController {
     private final CurtainCallMessageService curtainCallMessageService;
     private final AuthorizaionService authorizaionService;
     private final UserRepository userRepository;
+    private final SecretkeyManager manager;
 
     @PostMapping("authorization/send-one")
     public SingleMessageSentResponse sendOne(@RequestBody Map<String,String> phoneNumberMap) {
        String phoneNumber= phoneNumberMap.get("phoneNumber");
-        if(userRepository.findByPhoneNumber(phoneNumber).isPresent()){
+        if(userRepository.findByPhoneNumber(manager.encrypt(phoneNumber)).isPresent()){
             throw new UserAlreadyExistsException("This user is already existed");
         }
         return curtainCallMessageService.makeMessageResponse(phoneNumber);

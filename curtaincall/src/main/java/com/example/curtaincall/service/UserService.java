@@ -38,7 +38,7 @@ public class UserService {
     private final SecretkeyManager secretkeyManager;
     private final JwtUtils jwtUtils;
 
-    public UserService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, RecentCallLogRepository recentCallLogRepository, SecretkeyManager secretkeyManager, JwtUtils jwtUtils) {
+    public UserService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, SecretkeyManager secretkeyManager, JwtUtils jwtUtils) {
         this.userRepository = userRepository;
         this.phoneBookRepository = phoneBookRepository;
         this.secretkeyManager = secretkeyManager;
@@ -61,12 +61,10 @@ public class UserService {
         for (String phoneNumber : requestPhoneBookDTO.keySet()) {
             User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
                     PhoneBookNotfoundException::new);
-
             List<Contact> contacts = requestPhoneBookDTO.get(phoneNumber);
             List<PhoneBook> phoneBooks = contacts.stream()
                     .map(contact -> contact.toEntity(user, encrypt(contact.getPhoneNumber())))
                     .collect(Collectors.toList());
-
             phoneBookRepository.saveAll(phoneBooks);
 
             contacts.forEach(contact -> System.out.println("onandoff" + contact.getIsCurtainCallOnAndOff()));
@@ -106,8 +104,7 @@ public class UserService {
                                            RequestRemovedNumberInPhoneBookDTO numbers){
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
 
-        Arrays.stream(numbers.removedPhoneNumber()).forEach(number->
-                System.out.println(number));
+        Arrays.stream(numbers.removedPhoneNumber()).forEach(System.out::println);
         Arrays.stream(
                 numbers.removedPhoneNumber()).toList().forEach(number-> phoneBookRepository.
                         deleteByPhoneNumberAndUser(encrypt(number),user)
