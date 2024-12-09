@@ -38,7 +38,7 @@ public class CurtainCallMessageService {
             redisTemplate.delete(recievePhoneNumber);
         makeConfigRandomNumber(recievePhoneNumber);
         Message message = setMessage(recievePhoneNumber);
-        //난수를 생성하는 session을 만들거나, db에 저장 하거나,redis를 사용.
+        //난수를 생성하는 session을 만들거나, db에 저장 하거나,redis를 사용.e
         return this.messageService.sendOne(new SingleMessageSendingRequest(message));
     }
 
