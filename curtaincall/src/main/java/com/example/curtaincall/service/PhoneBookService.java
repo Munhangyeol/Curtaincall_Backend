@@ -10,6 +10,7 @@ import com.example.curtaincall.global.SecretkeyManager;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
 import com.example.curtaincall.repository.PhoneBookRepository;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -34,27 +35,22 @@ public class PhoneBookService {
         for (String phoneNumber : putRequestDTO.keySet()) {
             List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumber), user)
                     .orElseThrow(PhoneBookNotfoundException::new);
-            for (PhoneBook phoneBook : phoneBooks) {
-                Contact contact = putRequestDTO.get(phoneNumber);
-                phoneBook.setPhoneNumber(encrypt(contact.getPhoneNumber()));
-                phoneBook.setNickName(contact.getName());
-                phoneBook.setCurtainCallOnAndOff(contact.getIsCurtainCallOnAndOff());
-            }
+            updatePhoneBookDAO(putRequestDTO, phoneNumber, phoneBooks);
             phoneBookRepository.saveAll(phoneBooks);
         }
     }
+
     public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(String phoneNumberInPhoneBook, User user){
         List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumberInPhoneBook), user)
                 .orElseThrow(PhoneBookNotfoundException::new);
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
         phoneBookRepository.saveAll(phoneBooks);
-        return phoneBooks.stream().map(phoneBook -> ResponseUserDTO.builder().nickName(phoneBook.getNickName())
-                .isCurtainCallOnAndOff(false)
-                .build()).collect(Collectors.toList());
+        return getResponseUserDTOSWithSetOff(phoneBooks);
     }
+
+
     public ResponsePhoneBookDTO getPhoneBookWithSetAllOff(User user){
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
-
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
         phoneBookRepository.saveAll(phoneBooks);
         return getResponsePhoneBookDTO(user, phoneBooks);
@@ -77,6 +73,38 @@ public class PhoneBookService {
     public ResponsePhoneBookDTO findPhoneBook(User user){
        return getResponsePhoneBookDTO(user, findByUser(user));
     }
+    @NotNull
+    private static List<ResponseUserDTO> getResponseUserDTOSWithSetOff(List<PhoneBook> phoneBooks) {
+        return phoneBooks.stream().map(phoneBook -> ResponseUserDTO.builder().nickName(phoneBook.getNickName())
+                .isCurtainCallOnAndOff(false)
+                .build()).collect(Collectors.toList());
+    }
+    @NotNull
+
+    private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
+        Map<String, List<Contact>> contactMap = new HashMap<>();
+        List<Contact> contacts = makeContacts(phoneBooks);
+        contactMap.put(decrypt(user.getPhoneNumber()), contacts);
+        return ResponsePhoneBookDTO.builder().response(contactMap).build();
+    }
+    private void updatePhoneBookDAO(Map<String, Contact> putRequestDTO, String phoneNumber, List<PhoneBook> phoneBooks) {
+        for (PhoneBook phoneBook : phoneBooks) {
+            Contact contact = putRequestDTO.get(phoneNumber);
+            phoneBook.setPhoneNumber(encrypt(contact.getPhoneNumber()));
+            phoneBook.setNickName(contact.getName());
+            phoneBook.setCurtainCallOnAndOff(contact.getIsCurtainCallOnAndOff());
+        }
+    }
+    @NotNull
+    private List<Contact> makeContacts(List<PhoneBook> phoneBooks) {
+        return phoneBooks.stream()
+                .map(phoneBook -> Contact.builder()
+                        .phoneNumber(decrypt(phoneBook.getPhoneNumber()))
+                        .name(phoneBook.getNickName())
+                        .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     public String encrypt(String phoneNumber){
         return secretkeyManager.encrypt(phoneNumber);
@@ -84,18 +112,6 @@ public class PhoneBookService {
     public String decrypt(String phoneNumber){
         return secretkeyManager.decrypt(phoneNumber);
     }
-    private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
-        Map<String, List<Contact>> contactMap = new HashMap<>();
-        List<Contact> contacts = phoneBooks.stream()
-                .map(phoneBook -> Contact.builder()
-                        .phoneNumber(decrypt(phoneBook.getPhoneNumber()))
-                        .name(phoneBook.getNickName())
-                        .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
-                        .build())
-                .collect(Collectors.toList());
 
-        contactMap.put(decrypt(user.getPhoneNumber()), contacts);
-        return ResponsePhoneBookDTO.builder().response(contactMap).build();
-    }
 
 }

@@ -44,15 +44,13 @@ public class UserService {
     public String saveUser(RequestUserDTO requestUserDTO) {
         if (isNotExistsUser(requestUserDTO)) {
             User user = userRepository.save(requestUserDTO.toEntity(encrypt(requestUserDTO.phoneNumber())));
-            CurtaincallUserInfo userInfo = CurtaincallUserInfo.builder().id(user.getId())
-                    .phoneNumber(user.getPhoneNumber())
-                    .isCurtaincall(user.isCurtainCallOnAndOff())
-                    .role(user.getUserRole())
-                    .build();
+            CurtaincallUserInfo userInfo = getUserInfo(user);
             return jwtUtils.create(userInfo);
         }
         throw new UserAlreadyExistsException();
     }
+
+
 
     public void saveUserPhoneBooks(Map<String, List<Contact>> requestPhoneBookDTO) {
         for (String phoneNumber : requestPhoneBookDTO.keySet()) {
@@ -66,13 +64,11 @@ public class UserService {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(
                 UserNotfoundException::new
         );
-        user.setNickName(requestUserDTO.nickName());
-        user.setCurtainCallOnAndOff(requestUserDTO.isCurtainCall());
-        if(isChangeUserPhoneNumber(requestUserDTO, user)) {
-            user.setPhoneNumber(encrypt(requestUserDTO.phoneNumber()));
-        }
+        updateUserDAO(requestUserDTO, user);
+
         userRepository.save(user);
     }
+
     public void updatePhoneBook(Map<String, Contact> putRequestDTO,CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(
                 UserNotfoundException::new);
@@ -112,13 +108,26 @@ public class UserService {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
         phoneBookService.setAllOnPhoneBook(user);
     }
+    private  CurtaincallUserInfo getUserInfo(User user) {
+        return CurtaincallUserInfo.builder().id(user.getId())
+                .phoneNumber(user.getPhoneNumber())
+                .isCurtaincall(user.isCurtainCallOnAndOff())
+                .role(user.getUserRole())
+                .build();
+    }
     private boolean isNotExistsUser(RequestUserDTO requestUserDTO) {
         return userRepository.findByPhoneNumber(encrypt(requestUserDTO.phoneNumber())).isEmpty();
+    }
+    private void updateUserDAO(RequestUserDTO requestUserDTO, User user) {
+        if(isChangeUserPhoneNumber(requestUserDTO, user)) {
+            user.setPhoneNumber(encrypt(requestUserDTO.phoneNumber()));
+        }
+        user.setNickName(requestUserDTO.nickName());
+        user.setCurtainCallOnAndOff(requestUserDTO.isCurtainCall());
     }
     private  boolean isChangeUserPhoneNumber(RequestUserDTO requestUserDTO, User user) {
         return !requestUserDTO.phoneNumber().equals(user.getPhoneNumber());
     }
-
 
     private String encrypt(String plainText) {
         return secretkeyManager.encrypt(plainText);
