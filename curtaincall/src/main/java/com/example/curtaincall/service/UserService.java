@@ -17,6 +17,7 @@ import com.example.curtaincall.domain.PhoneBook;
 import com.example.curtaincall.domain.User;
 import com.example.curtaincall.dto.*;
 import com.example.curtaincall.global.SecretkeyManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -31,43 +32,31 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @Transactional
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PhoneBookRepository phoneBookRepository;
+    private final PhoneBookService phoneBookService;
     private final SecretkeyManager secretkeyManager;
     private final JwtUtils jwtUtils;
 
-    public UserService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, SecretkeyManager secretkeyManager, JwtUtils jwtUtils) {
-        this.userRepository = userRepository;
-        this.phoneBookRepository = phoneBookRepository;
-        this.secretkeyManager = secretkeyManager;
-        this.jwtUtils = jwtUtils;
-    }
 
     public String saveUser(RequestUserDTO requestUserDTO) {
-        if (userRepository.findByPhoneNumber(encrypt(requestUserDTO.phoneNumber())).isEmpty()) {
+        if (isNotExistsUser(requestUserDTO)) {
             User user = userRepository.save(requestUserDTO.toEntity(encrypt(requestUserDTO.phoneNumber())));
-            CurtaincallUserInfo userInfo = CurtaincallUserInfo.builder().id(user.getId())
-                    .phoneNumber(user.getPhoneNumber())
-                    .isCurtaincall(user.isCurtainCallOnAndOff())
-                    .role(user.getUserRole())
-                    .build();
+            CurtaincallUserInfo userInfo = getUserInfo(user);
             return jwtUtils.create(userInfo);
         }
-        throw  new UserAlreadyExistsException();
+        throw new UserAlreadyExistsException();
     }
+
+
+
     public void saveUserPhoneBooks(Map<String, List<Contact>> requestPhoneBookDTO) {
         for (String phoneNumber : requestPhoneBookDTO.keySet()) {
             User user = userRepository.findByPhoneNumber(encrypt(phoneNumber)).orElseThrow(
                     PhoneBookNotfoundException::new);
-            List<Contact> contacts = requestPhoneBookDTO.get(phoneNumber);
-            List<PhoneBook> phoneBooks = contacts.stream()
-                    .map(contact -> contact.toEntity(user, encrypt(contact.getPhoneNumber())))
-                    .collect(Collectors.toList());
-            phoneBookRepository.saveAll(phoneBooks);
-
-            contacts.forEach(contact -> System.out.println("onandoff" + contact.getIsCurtainCallOnAndOff()));
+            phoneBookService.saveAll(requestPhoneBookDTO.get(phoneNumber),user);
         }
     }
 
@@ -75,42 +64,21 @@ public class UserService {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(
                 UserNotfoundException::new
         );
-        user.setNickName(requestUserDTO.nickName());
-        user.setCurtainCallOnAndOff(requestUserDTO.isCurtainCall());
-        if(!requestUserDTO.phoneNumber().equals(user.getPhoneNumber())) {
-            user.setPhoneNumber(encrypt(requestUserDTO.phoneNumber()));
-        }
+        updateUserDAO(requestUserDTO, user);
+
         userRepository.save(user);
     }
 
     public void updatePhoneBook(Map<String, Contact> putRequestDTO,CustomUserDetails userDetails) {
-
-            User user = userRepository.findById(userDetails.getId()).orElseThrow(
-                    UserNotfoundException::new);
-
-        for (String phoneNumber : putRequestDTO.keySet()) {
-            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumber), user)
-                    .orElseThrow(PhoneBookNotfoundException::new);
-            for (PhoneBook phoneBook : phoneBooks) {
-                Contact contact = putRequestDTO.get(phoneNumber);
-                phoneBook.setPhoneNumber(encrypt(contact.getPhoneNumber()));
-                phoneBook.setNickName(contact.getName());
-                phoneBook.setCurtainCallOnAndOff(contact.getIsCurtainCallOnAndOff());
-            }
-            phoneBookRepository.saveAll(phoneBooks);
-        }
+        User user = userRepository.findById(userDetails.getId()).orElseThrow(
+                UserNotfoundException::new);
+        phoneBookService.update(putRequestDTO,user);
     }
     public void deleteContactInPhoneNumber(CustomUserDetails userDetails,
                                            RequestRemovedNumberInPhoneBookDTO numbers){
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-
-        Arrays.stream(numbers.removedPhoneNumber()).forEach(System.out::println);
-        Arrays.stream(
-                numbers.removedPhoneNumber()).toList().forEach(number-> phoneBookRepository.
-                        deleteByPhoneNumberAndUser(encrypt(number),user)
-                );
+        phoneBookService.deletePhoneNumber(numbers,user);
     }
-
     public ResponseUserDTO findUser(CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(
                 UserNotfoundException::new
@@ -121,57 +89,46 @@ public class UserService {
                 .isCurtainCallOnAndOff(user.isCurtainCallOnAndOff())
                 .build();
     }
-
     public ResponsePhoneBookDTO findPhoneBook(CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(
                 UserNotfoundException::new
         );
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
-        return getResponsePhoneBookDTO(user, phoneBooks);
+        return phoneBookService.findPhoneBook(user);
     }
-
-
     public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(CustomUserDetails userDetails,String phoneNumberInPhoneBook){
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumberInPhoneBook), user)
-                .orElseThrow(PhoneBookNotfoundException::new);
-        phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
-        phoneBookRepository.saveAll(phoneBooks);
-       return phoneBooks.stream().map(phoneBook -> ResponseUserDTO.builder().nickName(phoneBook.getNickName())
-                .isCurtainCallOnAndOff(false)
-                .build()).collect(Collectors.toList());
+        return phoneBookService.getUserInPhoneBookAndSetOff(phoneNumberInPhoneBook, user);
 
     }
     public ResponsePhoneBookDTO getPhoneBookWithSetAllOff(CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
-
-        phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
-        phoneBookRepository.saveAll(phoneBooks);
-
-        return getResponsePhoneBookDTO(user, phoneBooks);
+        return phoneBookService.getPhoneBookWithSetAllOff(user);
     }
     public void setAllOnPhoneBook(CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
-        phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(true));
-        phoneBookRepository.saveAll(phoneBooks);
+        phoneBookService.setAllOnPhoneBook(user);
+    }
+    private  CurtaincallUserInfo getUserInfo(User user) {
+        return CurtaincallUserInfo.builder().id(user.getId())
+                .phoneNumber(user.getPhoneNumber())
+                .isCurtaincall(user.isCurtainCallOnAndOff())
+                .role(user.getUserRole())
+                .build();
+    }
+    private boolean isNotExistsUser(RequestUserDTO requestUserDTO) {
+        return userRepository.findByPhoneNumber(encrypt(requestUserDTO.phoneNumber())).isEmpty();
+    }
+    private void updateUserDAO(RequestUserDTO requestUserDTO, User user) {
+        if(isChangeUserPhoneNumber(requestUserDTO, user)) {
+            user.setPhoneNumber(encrypt(requestUserDTO.phoneNumber()));
+        }
+        user.setNickName(requestUserDTO.nickName());
+        user.setCurtainCallOnAndOff(requestUserDTO.isCurtainCall());
+    }
+    private  boolean isChangeUserPhoneNumber(RequestUserDTO requestUserDTO, User user) {
+        return !requestUserDTO.phoneNumber().equals(user.getPhoneNumber());
     }
 
-
-    private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
-        Map<String, List<Contact>> contactMap = new HashMap<>();
-        List<Contact> contacts = phoneBooks.stream()
-                .map(phoneBook -> Contact.builder()
-                        .phoneNumber(decrypt(phoneBook.getPhoneNumber()))
-                        .name(phoneBook.getNickName())
-                        .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
-                        .build())
-                .collect(Collectors.toList());
-
-        contactMap.put(decrypt(user.getPhoneNumber()), contacts);
-        return ResponsePhoneBookDTO.builder().response(contactMap).build();
-    }
     private String encrypt(String plainText) {
         return secretkeyManager.encrypt(plainText);
     }

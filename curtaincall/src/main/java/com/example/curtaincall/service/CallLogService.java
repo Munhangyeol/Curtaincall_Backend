@@ -29,22 +29,32 @@ public class CallLogService {
         User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(
                 UserNotfoundException::new);
         List<CallLogInfo> callLogInfos = new ArrayList<>();
-        for (String phoneNumber : recentPhoneNumbers.phoneNumbers()) {
+        findRecentCallDTO(recentPhoneNumbers, user, callLogInfos);
+        return ResponseRecentCallLogDTO.builder().callLogInfos(callLogInfos).build();
+    }
 
+    private void findRecentCallDTO(RequestRecentCallLogDTO recentPhoneNumbers, User user, List<CallLogInfo> callLogInfos) {
+        for (String phoneNumber : recentPhoneNumbers.phoneNumbers()) {
             List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(
                     secretkeyManager.encrypt(phoneNumber), user)
                     .orElseThrow(PhoneBookNotfoundException::new);
             if(phoneBooks.isEmpty())
-                callLogInfos.add(CallLogInfo.builder().phoneNumber(phoneNumber)
-                        .nickname("Unknown!!")
-                        .build());
-
-            for (PhoneBook phoneBook : phoneBooks) {
-                callLogInfos.add(CallLogInfo.builder().
-                        nickname(phoneBook.getNickName()).
-                        phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).build());
-            }
+                setCallLogInfosNotExistName(callLogInfos, phoneNumber);
+            setCallLogInfosExistName(callLogInfos, phoneBooks);
         }
-        return ResponseRecentCallLogDTO.builder().callLogInfos(callLogInfos).build();
+    }
+
+    private void setCallLogInfosExistName(List<CallLogInfo> callLogInfos, List<PhoneBook> phoneBooks) {
+        for (PhoneBook phoneBook : phoneBooks) {
+            callLogInfos.add(CallLogInfo.builder().
+                    nickname(phoneBook.getNickName()).
+                    phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).build());
+        }
+    }
+
+    private void setCallLogInfosNotExistName(List<CallLogInfo> callLogInfos, String phoneNumber) {
+        callLogInfos.add(CallLogInfo.builder().phoneNumber(phoneNumber)
+                .nickname("Unknown!!")
+                .build());
     }
 }
