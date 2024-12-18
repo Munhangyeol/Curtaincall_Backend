@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class CallController {
     private final CallLogService callLogService;
-
-
     public CallController(CallLogService callLogService) {
         this.callLogService = callLogService;
     }
