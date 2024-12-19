@@ -22,13 +22,11 @@ public class AuthorizationTest {
     private AuthorizaionService authorizaionService;
 
     @Autowired
-    private SecretkeyManager secretkeyManager;
-    @Autowired
     private UserRepository userRepository;
     private CustomUserDetails userDetails1;
     @PostConstruct
     public void postConstruct() {
-        User user1 = userRepository.findByPhoneNumber(secretkeyManager.encrypt("01023326094"))
+        User user1 = userRepository.findByPhoneNumber("01023326094")
                 .orElseThrow(UserNotfoundException::new);
 
         userDetails1 = new CustomUserDetails(CurtaincallUserInfo.builder()

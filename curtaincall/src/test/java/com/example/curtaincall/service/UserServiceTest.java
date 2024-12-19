@@ -29,8 +29,7 @@ import java.util.*;
 public class UserServiceTest {
     @Autowired
     private UserService userService;
-    @Autowired
-    private SecretkeyManager secretkeyManager;
+
     @Autowired
     private UserRepository userRepository;
     private CustomUserDetails userDetails1;
@@ -38,9 +37,9 @@ public class UserServiceTest {
     private CustomUserDetails userDetails3;
     @PostConstruct
     public void postConstruct(){
-        User user1 = userRepository.findByPhoneNumber(secretkeyManager.encrypt("01023326094"))
+        User user1 = userRepository.findByPhoneNumber("01023326094")
                 .orElseThrow(UserNotfoundException::new);
-        User user2 = userRepository.findByPhoneNumber(secretkeyManager.encrypt("01012345678"))
+        User user2 = userRepository.findByPhoneNumber("01012345678")
                 .orElseThrow(UserNotfoundException::new);
         userDetails1= new CustomUserDetails(CurtaincallUserInfo.builder()
                 .id(user1.getId())

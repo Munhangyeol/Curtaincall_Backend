@@ -25,8 +25,7 @@ public class CallLogServiceTest {
     @Autowired
     private CallLogService callLogService;
 
-    @Autowired
-    private SecretkeyManager manager;
+
 
     @DisplayName("두개 이상의 번호를 통해서 request 순서대로, response를 잘 반환하는지 확인")
     @Test
@@ -41,7 +40,7 @@ public class CallLogServiceTest {
                 .phoneNumber("01033333333").build());
         callLogInfos.add(CallLogInfo.builder().nickname("임임임")
                 .phoneNumber("01044444444").build());
-        Assertions.assertEquals(callLogService.findRecentCallContact(manager.encrypt("01023326094"),recentCallLogDTO).callLogInfos(),
+        Assertions.assertEquals(callLogService.findRecentCallContact("01023326094",recentCallLogDTO).callLogInfos(),
                 callLogInfos);
     }
 

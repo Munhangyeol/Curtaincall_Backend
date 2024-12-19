@@ -1,5 +1,6 @@
 package com.example.curtaincall.domain;
 
+import com.example.curtaincall.global.PhoneNumberConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -20,6 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NonNull
+    @Convert(converter= PhoneNumberConverter.class)
     private String phoneNumber;
     @Column(name="nick_name")
     private String nickName;
