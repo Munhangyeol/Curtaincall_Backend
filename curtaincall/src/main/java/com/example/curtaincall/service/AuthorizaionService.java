@@ -12,7 +12,6 @@ import java.util.Optional;
 public class AuthorizaionService {
     private final UserRepository userRepository;
 
-
     public AuthorizaionService(UserRepository userRepository, SecretkeyManager secretkeyManager) {
         this.userRepository = userRepository;
     }

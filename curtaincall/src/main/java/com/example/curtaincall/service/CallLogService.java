@@ -10,22 +10,20 @@ import com.example.curtaincall.repository.PhoneBookRepository;
 import com.example.curtaincall.dto.request.RequestRecentCallLogDTO;
 import com.example.curtaincall.dto.response.ResponseRecentCallLogDTO;
 import com.example.curtaincall.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import okhttp3.Call;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class CallLogService {
     private final UserRepository userRepository;
     private final PhoneBookRepository phoneBookRepository;
-    private final SecretkeyManager secretkeyManager;
-    public CallLogService(UserRepository userRepository, PhoneBookRepository phoneBookRepository, SecretkeyManager secretkeyManager) {
-        this.userRepository = userRepository;
-        this.phoneBookRepository = phoneBookRepository;
-        this.secretkeyManager = secretkeyManager;
-    }
+
     public ResponseRecentCallLogDTO findRecentCallContact(String userPhoneNumber,RequestRecentCallLogDTO recentPhoneNumbers){
+        System.out.println(userPhoneNumber);
         User user = userRepository.findByPhoneNumber(userPhoneNumber).orElseThrow(
                 UserNotfoundException::new);
         List<CallLogInfo> callLogInfos = new ArrayList<>();
@@ -36,7 +34,7 @@ public class CallLogService {
     private void findRecentCallDTO(RequestRecentCallLogDTO recentPhoneNumbers, User user, List<CallLogInfo> callLogInfos) {
         for (String phoneNumber : recentPhoneNumbers.phoneNumbers()) {
             List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(
-                    secretkeyManager.encrypt(phoneNumber), user)
+                    phoneNumber, user)
                     .orElseThrow(PhoneBookNotfoundException::new);
             if(phoneBooks.isEmpty())
                 setCallLogInfosNotExistName(callLogInfos, phoneNumber);
@@ -48,7 +46,7 @@ public class CallLogService {
         for (PhoneBook phoneBook : phoneBooks) {
             callLogInfos.add(CallLogInfo.builder().
                     nickname(phoneBook.getNickName()).
-                    phoneNumber(secretkeyManager.decrypt(phoneBook.getPhoneNumber())).build());
+                    phoneNumber(phoneBook.getPhoneNumber()).build());
         }
     }
 

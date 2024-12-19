@@ -21,8 +21,7 @@ public class RecentCallLog {
     private Date recentCallDate;
 
     @Builder
-    public RecentCallLog(boolean isMissedCall,String nickName,
-    String phoneNumber
+    public RecentCallLog(boolean isMissedCall,String nickName, String phoneNumber
     , Date recentCallDate){
         this.isMissedCall = isMissedCall;
         this.nickName = nickName;

@@ -19,18 +19,16 @@ import java.util.stream.Collectors;
 public class PhoneBookDataLoader {
     private final PhoneBookRepository phoneBookRepository;
     private final UserRepository userRepository;
-    private final SecretkeyManager manager;
-
 
     public void save(){
-        User user1=userRepository.findByPhoneNumber(manager.encrypt("01023326094"))
+        User user1=userRepository.findByPhoneNumber("01023326094")
                 .orElseThrow(RuntimeException::new);
-        User user2=userRepository.findByPhoneNumber(manager.encrypt("01012345678"))
+        User user2=userRepository.findByPhoneNumber("01012345678")
                 .orElseThrow(RuntimeException::new);
-        Contact contact1=Contact.builder().phoneNumber(manager.encrypt("01033333333"))
+        Contact contact1=Contact.builder().phoneNumber("01033333333")
                         .name("김김김")
                                 .isCurtainCallOnAndOff(false).build();
-        Contact contact2=Contact.builder().phoneNumber(manager.encrypt("01044444444"))
+        Contact contact2=Contact.builder().phoneNumber("01044444444")
                 .name("임임임")
                 .isCurtainCallOnAndOff(true).build();
         List<Contact> contacts=new ArrayList<>();

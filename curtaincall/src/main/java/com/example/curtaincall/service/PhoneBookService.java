@@ -23,17 +23,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PhoneBookService {
     private final PhoneBookRepository phoneBookRepository;
-    private final SecretkeyManager secretkeyManager;
 
     public void saveAll(List<Contact> contacts, User user){
         List<PhoneBook> phoneBooks = contacts.stream()
-                .map(contact -> contact.toEntity(user, encrypt(contact.getPhoneNumber())))
+                .map(contact -> contact.toEntity(user, contact.getPhoneNumber()))
                 .collect(Collectors.toList());
         phoneBookRepository.saveAll(phoneBooks);
     }
     public void update(Map<String, Contact> putRequestDTO,User user){
         for (String phoneNumber : putRequestDTO.keySet()) {
-            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumber), user)
+            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(phoneNumber, user)
                     .orElseThrow(PhoneBookNotfoundException::new);
             updatePhoneBookDAO(putRequestDTO, phoneNumber, phoneBooks);
             phoneBookRepository.saveAll(phoneBooks);
@@ -41,7 +40,7 @@ public class PhoneBookService {
     }
 
     public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(String phoneNumberInPhoneBook, User user){
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(encrypt(phoneNumberInPhoneBook), user)
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(phoneNumberInPhoneBook, user)
                 .orElseThrow(PhoneBookNotfoundException::new);
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
         phoneBookRepository.saveAll(phoneBooks);
@@ -67,7 +66,7 @@ public class PhoneBookService {
     public void deletePhoneNumber(RequestRemovedNumberInPhoneBookDTO numbers,User user){
         Arrays.stream(
                 numbers.removedPhoneNumber()).toList().forEach(number-> phoneBookRepository.
-                deleteByPhoneNumberAndUser(encrypt(number),user)
+                deleteByPhoneNumberAndUser(number,user)
         );
     }
     public ResponsePhoneBookDTO findPhoneBook(User user){
@@ -80,17 +79,16 @@ public class PhoneBookService {
                 .build()).collect(Collectors.toList());
     }
     @NotNull
-
     private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
         Map<String, List<Contact>> contactMap = new HashMap<>();
         List<Contact> contacts = makeContacts(phoneBooks);
-        contactMap.put(decrypt(user.getPhoneNumber()), contacts);
+        contactMap.put(user.getPhoneNumber(), contacts);
         return ResponsePhoneBookDTO.builder().response(contactMap).build();
     }
     private void updatePhoneBookDAO(Map<String, Contact> putRequestDTO, String phoneNumber, List<PhoneBook> phoneBooks) {
         for (PhoneBook phoneBook : phoneBooks) {
             Contact contact = putRequestDTO.get(phoneNumber);
-            phoneBook.setPhoneNumber(encrypt(contact.getPhoneNumber()));
+            phoneBook.setPhoneNumber(contact.getPhoneNumber());
             phoneBook.setNickName(contact.getName());
             phoneBook.setCurtainCallOnAndOff(contact.getIsCurtainCallOnAndOff());
         }
@@ -99,19 +97,13 @@ public class PhoneBookService {
     private List<Contact> makeContacts(List<PhoneBook> phoneBooks) {
         return phoneBooks.stream()
                 .map(phoneBook -> Contact.builder()
-                        .phoneNumber(decrypt(phoneBook.getPhoneNumber()))
+                        .phoneNumber(phoneBook.getPhoneNumber())
                         .name(phoneBook.getNickName())
                         .isCurtainCallOnAndOff(phoneBook.isCurtainCallOnAndOff())
                         .build())
                 .collect(Collectors.toList());
     }
 
-    public String encrypt(String phoneNumber){
-        return secretkeyManager.encrypt(phoneNumber);
-    }
-    public String decrypt(String phoneNumber){
-        return secretkeyManager.decrypt(phoneNumber);
-    }
 
 
 }
