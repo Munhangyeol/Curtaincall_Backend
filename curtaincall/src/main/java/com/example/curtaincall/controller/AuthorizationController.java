@@ -22,7 +22,6 @@ public class AuthorizationController {
     private final CurtainCallMessageService curtainCallMessageService;
     private final AuthorizaionService authorizaionService;
     private final UserRepository userRepository;
-    private final SecretkeyManager manager;
 
     @GetMapping("/health-check")
     public ResponseEntity<Void> checkHealthStatus() {
@@ -31,7 +30,7 @@ public class AuthorizationController {
     @PostMapping("authorization/send-one")
     public SingleMessageSentResponse sendOne(@RequestBody Map<String,String> phoneNumberMap) {
        String phoneNumber= phoneNumberMap.get("phoneNumber");
-        if(userRepository.findByPhoneNumber(manager.encrypt(phoneNumber)).isPresent()){
+        if(userRepository.findByPhoneNumber(phoneNumber).isPresent()){
             throw new UserAlreadyExistsException("This user is already existed");
         }
         return curtainCallMessageService.makeMessageResponse(phoneNumber);
