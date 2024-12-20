@@ -8,6 +8,7 @@ import com.example.curtaincall.service.AuthorizaionService;
 import com.example.curtaincall.service.CurtainCallMessageService;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,10 @@ public class AuthorizationController {
     private final UserRepository userRepository;
     private final SecretkeyManager manager;
 
+    @GetMapping("/health-check")
+    public ResponseEntity<Void> checkHealthStatus() {
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     @PostMapping("authorization/send-one")
     public SingleMessageSentResponse sendOne(@RequestBody Map<String,String> phoneNumberMap) {
        String phoneNumber= phoneNumberMap.get("phoneNumber");
