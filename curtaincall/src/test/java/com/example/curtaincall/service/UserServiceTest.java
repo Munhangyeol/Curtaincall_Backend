@@ -25,6 +25,7 @@ import java.util.*;
 
 
 @SpringBootTest
+@Transactional
 @ActiveProfiles("test")
 public class UserServiceTest {
     @Autowired
@@ -33,8 +34,6 @@ public class UserServiceTest {
     @Autowired
     private UserRepository userRepository;
     private CustomUserDetails userDetails1;
-    private CustomUserDetails userDetails2;
-    private CustomUserDetails userDetails3;
     @PostConstruct
     public void postConstruct(){
         User user1 = userRepository.findByPhoneNumber("01023326094")
@@ -49,14 +48,7 @@ public class UserServiceTest {
                 .nickName(user1.getNickName())
                 .build()
         );
-        userDetails2= new CustomUserDetails(CurtaincallUserInfo.builder()
-                .id(user2.getId())
-                .phoneNumber(user2.getPhoneNumber())
-                .isCurtaincall(user2.isCurtainCallOnAndOff())
-                .role(user2.getUserRole())
-                .nickName(user2.getNickName())
-                .build()
-        );
+
     }
 
 
@@ -72,7 +64,8 @@ public class UserServiceTest {
     }
     @DisplayName("user테이블에 이미 있는 번호를 저장 하면 예외가 발생한다.")
     @Test
-    public void saveByPhoneNumberInUserTable(){Assertions.assertThrows(UserAlreadyExistsException.class,()->userService.saveUser(RequestUserDTO.builder()
+    public void saveByPhoneNumberInUserTable(){
+        Assertions.assertThrows(UserAlreadyExistsException.class,()->userService.saveUser(RequestUserDTO.builder()
                 .phoneNumber("01023326094").nickName("nickname").isCurtainCall(true).build()));
     }
     @DisplayName("user테이블에 없는 번호를 저장 하면 잘 동작한다.")
@@ -82,7 +75,6 @@ public class UserServiceTest {
             .phoneNumber("01023326091").nickName("nickname").isCurtainCall(true).build()));
     }
 
-    @Transactional
     @DisplayName("01023326094 user의 번호들을 일괄 on으로 전환")
     @Test
     public void setAllOnCurtaincall(){
@@ -91,7 +83,7 @@ public class UserServiceTest {
         phoneBookByPhoneNumber.getResponse().get("01023326094").forEach(phoneBook->
                 Assertions.assertEquals(phoneBook.getIsCurtainCallOnAndOff(),true));
     }
-    @Transactional
+
     @DisplayName("01023326094 user의 번호들을 일괄 off로 전환")
     @Test
     public void setAllOffCurtaincall(){
@@ -99,7 +91,6 @@ public class UserServiceTest {
         phoneBookByPhoneNumber.getResponse().get("01023326094").forEach(phoneBook->
                 Assertions.assertEquals(phoneBook.getIsCurtainCallOnAndOff(),false));
     }
-    @Transactional
     @DisplayName("01023326094 user의 특정 번호들을  off로 전환")
     @Test
     public void setOffCurtaincall(){
@@ -111,7 +102,7 @@ public class UserServiceTest {
                 .findFirst();
         Assertions.assertEquals(first.get().getIsCurtainCallOnAndOff(),false);
     }
-    @Transactional
+
     @DisplayName("01023326094 user의 정보를 변경")
     @Test
     public void changeUser(){
@@ -120,7 +111,6 @@ public class UserServiceTest {
              .isCurtainCall(true).build(),userDetails1);
      Assertions.assertEquals("MunMun",userService.findUser(userDetails1).nickName());
     }
-    @Transactional
     @DisplayName("01023326094 phoneBook의 정보를 변경")
     @Test
     public void changePhoneBook(){
@@ -137,7 +127,6 @@ public class UserServiceTest {
                         "01044415552")).findFirst();
         Assertions.assertEquals(first.get().getName(),"조조");
     }
-    @Transactional
     @DisplayName("01023326094 user의 contact 변경")
     @Test
     public void deleteContact(){
