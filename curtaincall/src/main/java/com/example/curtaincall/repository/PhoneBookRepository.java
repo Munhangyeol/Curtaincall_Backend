@@ -34,5 +34,7 @@ public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
     //spring data jpa의 동작방식과 관련이 있음-> jpql을 안쓰고는 못함
     @Modifying
     @Query("delete from PhoneBook p where p.phoneNumber=:phoneNumber and  p.user.id=:userId")
-    void deleteByPhoneNumberAndUserId(String phoneNumber,Long userId );
+    void deleteByPhoneNumberAndUserId(String phoneNumber,Long userId);
+
+
 }

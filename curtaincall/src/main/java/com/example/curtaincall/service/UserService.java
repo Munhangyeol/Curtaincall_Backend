@@ -89,13 +89,11 @@ public class UserService {
         return phoneBookService.findPhoneBook(userDetails);
     }
     public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(CustomUserDetails userDetails,String phoneNumberInPhoneBook){
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        return phoneBookService.getUserInPhoneBookAndSetOff(phoneNumberInPhoneBook, user);
+        return phoneBookService.getUserInPhoneBookAndSetOff(phoneNumberInPhoneBook, userDetails.getId());
 
     }
     public ResponsePhoneBookDTO getPhoneBookWithSetAllOff(CustomUserDetails userDetails) {
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        return phoneBookService.getPhoneBookWithSetAllOff(user);
+        return phoneBookService.getPhoneBookWithSetAllOff(userDetails);
     }
     public void setAllOnPhoneBook(CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);

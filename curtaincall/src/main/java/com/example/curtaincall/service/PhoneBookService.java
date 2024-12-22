@@ -39,8 +39,8 @@ public class PhoneBookService {
         }
     }
 
-    public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(String phoneNumberInPhoneBook, User user){
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(phoneNumberInPhoneBook, user)
+    public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(String phoneNumberInPhoneBook, Long userId){
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUserId(phoneNumberInPhoneBook, userId)
                 .orElseThrow(PhoneBookNotfoundException::new);
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
         phoneBookRepository.saveAll(phoneBooks);
@@ -48,11 +48,11 @@ public class PhoneBookService {
     }
 
 
-    public ResponsePhoneBookDTO getPhoneBookWithSetAllOff(User user){
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
+    public ResponsePhoneBookDTO getPhoneBookWithSetAllOff(CustomUserDetails userDetails){
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByUserId(userDetails.getId());
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
         phoneBookRepository.saveAll(phoneBooks);
-        return getResponsePhoneBookDTO(user.getPhoneNumber(), phoneBooks);
+        return getResponsePhoneBookDTO(userDetails.getPhoneNumber(), phoneBooks);
     }
     public void setAllOnPhoneBook(User user){
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
