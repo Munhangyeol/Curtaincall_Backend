@@ -1,5 +1,6 @@
 package com.example.curtaincall.service;
 
+import com.example.curtaincall.domain.PhoneBook;
 import com.example.curtaincall.domain.User;
 import com.example.curtaincall.dto.Contact;
 import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
@@ -7,6 +8,7 @@ import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 
 import com.example.curtaincall.global.SecretkeyManager;
+import com.example.curtaincall.global.aop.TimeTrace;
 import com.example.curtaincall.global.auth.CurtaincallUserInfo;
 import com.example.curtaincall.global.exception.UserAlreadyExistsException;
 import com.example.curtaincall.global.exception.UserNotfoundException;
@@ -48,7 +50,6 @@ public class UserServiceTest {
                 .nickName(user1.getNickName())
                 .build()
         );
-
     }
 
 
@@ -71,7 +72,7 @@ public class UserServiceTest {
     @DisplayName("user테이블에 없는 번호를 저장 하면 잘 동작한다.")
     @Test
     public void saveByPhoneNumberUserTable(){
-        Assertions.assertNotNull(UserAlreadyExistsException.class,()->userService.saveUser(RequestUserDTO.builder()
+        Assertions.assertNotNull(userService.saveUser(RequestUserDTO.builder()
             .phoneNumber("01023326091").nickName("nickname").isCurtainCall(true).build()));
     }
 
@@ -112,6 +113,7 @@ public class UserServiceTest {
      Assertions.assertEquals("MunMun",userService.findUser(userDetails1).nickName());
     }
     @DisplayName("01023326094 phoneBook의 정보를 변경")
+    @TimeTrace
     @Test
     public void changePhoneBook(){
         Map<String,Contact> maps=new HashMap<>();
@@ -121,6 +123,7 @@ public class UserServiceTest {
                 .isCurtainCallOnAndOff(true)
                 .build());
         userService.updatePhoneBook(maps,userDetails1);
+        System.out.println("!!!!!!!!!!!!!!!!!!!");
         Optional<Contact> first = userService.findPhoneBook(userDetails1).getResponse().
                 get("01023326094")
                 .stream().filter(contact -> Objects.equals(contact.getPhoneNumber(),

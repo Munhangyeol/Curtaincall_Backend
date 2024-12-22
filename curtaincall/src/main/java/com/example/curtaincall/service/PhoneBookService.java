@@ -30,12 +30,11 @@ public class PhoneBookService {
                 .collect(Collectors.toList());
         phoneBookRepository.saveAll(phoneBooks);
     }
-    public void update(Map<String, Contact> putRequestDTO,User user){
+    public void update(Map<String, Contact> putRequestDTO,Long userId){
         for (String phoneNumber : putRequestDTO.keySet()) {
-            List<PhoneBook> phoneBooks = phoneBookRepository.findByPhoneNumberAndUser(phoneNumber, user)
-                    .orElseThrow(PhoneBookNotfoundException::new);
-            updatePhoneBookDAO(putRequestDTO, phoneNumber, phoneBooks);
-            phoneBookRepository.saveAll(phoneBooks);
+            Contact contact = putRequestDTO.get(phoneNumber);
+            phoneBookRepository.updateByPhoneNumberAndUserId(contact.getIsCurtainCallOnAndOff(),
+                    contact.getName(),contact.getPhoneNumber(),phoneNumber,userId);
         }
     }
 
@@ -85,7 +84,7 @@ public class PhoneBookService {
         contactMap.put(user.getPhoneNumber(), contacts);
         return ResponsePhoneBookDTO.builder().response(contactMap).build();
     }
-    private void updatePhoneBookDAO(Map<String, Contact> putRequestDTO, String phoneNumber, List<PhoneBook> phoneBooks) {
+    public void updatePhoneBookDAO(Map<String, Contact> putRequestDTO, String phoneNumber, List<PhoneBook> phoneBooks) {
         for (PhoneBook phoneBook : phoneBooks) {
             Contact contact = putRequestDTO.get(phoneNumber);
             phoneBook.setPhoneNumber(contact.getPhoneNumber());
