@@ -62,10 +62,10 @@ public class PhoneBookService {
     public List<PhoneBook> findByUser(User user){
         return phoneBookRepository.findByUser(user);
     }
-    public void deletePhoneNumber(RequestRemovedNumberInPhoneBookDTO numbers,User user){
+    public void deletePhoneNumber(RequestRemovedNumberInPhoneBookDTO numbers,Long userId){
         Arrays.stream(
                 numbers.removedPhoneNumber()).toList().forEach(number-> phoneBookRepository.
-                deleteByPhoneNumberAndUser(number,user)
+                deleteByPhoneNumberAndUserId(number,userId)
         );
     }
     public ResponsePhoneBookDTO findPhoneBook(User user){

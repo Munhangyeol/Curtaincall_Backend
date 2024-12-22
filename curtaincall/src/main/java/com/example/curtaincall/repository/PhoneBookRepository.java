@@ -16,7 +16,6 @@ public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
     @Query("select p from PhoneBook p where p.phoneNumber = :phoneNumber and p.user.id = :userId")
     Optional<List<PhoneBook>> findByPhoneNumberAndUserId(@Param("phoneNumber") String phoneNumber,
                                                          @Param("userId") Long userId);
-
     @Modifying
     @Query("update PhoneBook p " +
             "set p.isCurtainCallOnAndOff = :isCurtaincall, " +
@@ -29,5 +28,7 @@ public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
                                       @Param("phoneNumber") String phoneNumber,
                                       @Param("userId") Long userId);
     Optional<List<PhoneBook>> findByPhoneNumberAndUser(String phoneNumber, User user);
-    void deleteByPhoneNumberAndUser(String phoneNumber,User user);
+    @Modifying
+    @Query("delete from PhoneBook p where p.phoneNumber=:phoneNumber and  p.user.id=:userId")
+    void deleteByPhoneNumberAndUserId(String phoneNumber,Long userId );
 }

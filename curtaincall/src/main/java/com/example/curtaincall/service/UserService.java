@@ -72,8 +72,7 @@ public class UserService {
     }
     public void deleteContactInPhoneNumber(CustomUserDetails userDetails,
                                            RequestRemovedNumberInPhoneBookDTO numbers){
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        phoneBookService.deletePhoneNumber(numbers,user);
+        phoneBookService.deletePhoneNumber(numbers,userDetails.getId());
     }
     public ResponseUserDTO findUser(CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(
