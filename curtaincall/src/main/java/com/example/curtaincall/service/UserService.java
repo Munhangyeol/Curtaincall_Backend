@@ -4,6 +4,7 @@ import com.example.curtaincall.dto.request.RequestRemovedNumberInPhoneBookDTO;
 import com.example.curtaincall.dto.request.RequestUserDTO;
 import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 import com.example.curtaincall.dto.response.ResponseUserDTO;
+import com.example.curtaincall.global.aop.TimeTrace;
 import com.example.curtaincall.global.auth.CurtaincallUserInfo;
 import com.example.curtaincall.global.auth.jwt.JwtUtils;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
@@ -65,10 +66,9 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @TimeTrace
     public void updatePhoneBook(Map<String, Contact> putRequestDTO,CustomUserDetails userDetails) {
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(
-                UserNotfoundException::new);
-        phoneBookService.update(putRequestDTO,user);
+        phoneBookService.update(putRequestDTO,userDetails.getId());
     }
     public void deleteContactInPhoneNumber(CustomUserDetails userDetails,
                                            RequestRemovedNumberInPhoneBookDTO numbers){
