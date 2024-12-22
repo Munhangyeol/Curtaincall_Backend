@@ -96,8 +96,7 @@ public class UserService {
         return phoneBookService.getPhoneBookWithSetAllOff(userDetails);
     }
     public void setAllOnPhoneBook(CustomUserDetails userDetails) {
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        phoneBookService.setAllOnPhoneBook(user);
+        phoneBookService.setAllOnPhoneBook(userDetails);
     }
     private  CurtaincallUserInfo getUserInfo(User user) {
         return CurtaincallUserInfo.builder().id(user.getId())

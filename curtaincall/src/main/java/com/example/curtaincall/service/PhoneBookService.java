@@ -54,11 +54,8 @@ public class PhoneBookService {
         phoneBookRepository.saveAll(phoneBooks);
         return getResponsePhoneBookDTO(userDetails.getPhoneNumber(), phoneBooks);
     }
-    public void setAllOnPhoneBook(User user){
-        List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
-        phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(true));
-        phoneBookRepository.saveAll(phoneBooks);
-
+    public void setAllOnPhoneBook(CustomUserDetails userDetails){
+         phoneBookRepository.updateCurtaincallAllOnByUserId(userDetails.getId());
     }
     public List<PhoneBook> findByUser(User user){
         return phoneBookRepository.findByUser(user);

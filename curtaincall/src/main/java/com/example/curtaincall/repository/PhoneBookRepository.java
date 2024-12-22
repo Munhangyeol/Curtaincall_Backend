@@ -36,5 +36,9 @@ public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
     @Query("delete from PhoneBook p where p.phoneNumber=:phoneNumber and  p.user.id=:userId")
     void deleteByPhoneNumberAndUserId(String phoneNumber,Long userId);
 
+    @Modifying
+    @Query("update PhoneBook p set p.isCurtainCallOnAndOff=true " +
+            "where p.user.id=:userId")
+    void updateCurtaincallAllOnByUserId(Long userId);
 
 }
