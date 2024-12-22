@@ -72,8 +72,7 @@ public class UserService {
     }
     public void deleteContactInPhoneNumber(CustomUserDetails userDetails,
                                            RequestRemovedNumberInPhoneBookDTO numbers){
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        phoneBookService.deletePhoneNumber(numbers,user);
+        phoneBookService.deletePhoneNumber(numbers,userDetails.getId());
     }
     public ResponseUserDTO findUser(CustomUserDetails userDetails) {
         User user = userRepository.findById(userDetails.getId()).orElseThrow(
@@ -86,23 +85,18 @@ public class UserService {
                 .build();
     }
     public ResponsePhoneBookDTO findPhoneBook(CustomUserDetails userDetails) {
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(
-                UserNotfoundException::new
-        );
-        return phoneBookService.findPhoneBook(user);
+
+        return phoneBookService.findPhoneBook(userDetails);
     }
     public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(CustomUserDetails userDetails,String phoneNumberInPhoneBook){
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        return phoneBookService.getUserInPhoneBookAndSetOff(phoneNumberInPhoneBook, user);
+        return phoneBookService.getUserInPhoneBookAndSetOff(phoneNumberInPhoneBook, userDetails.getId());
 
     }
     public ResponsePhoneBookDTO getPhoneBookWithSetAllOff(CustomUserDetails userDetails) {
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        return phoneBookService.getPhoneBookWithSetAllOff(user);
+        return phoneBookService.getPhoneBookWithSetAllOff(userDetails);
     }
     public void setAllOnPhoneBook(CustomUserDetails userDetails) {
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);
-        phoneBookService.setAllOnPhoneBook(user);
+        phoneBookService.setAllOnPhoneBook(userDetails);
     }
     private  CurtaincallUserInfo getUserInfo(User user) {
         return CurtaincallUserInfo.builder().id(user.getId())
