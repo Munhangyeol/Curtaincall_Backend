@@ -85,10 +85,8 @@ public class UserService {
                 .build();
     }
     public ResponsePhoneBookDTO findPhoneBook(CustomUserDetails userDetails) {
-        User user = userRepository.findById(userDetails.getId()).orElseThrow(
-                UserNotfoundException::new
-        );
-        return phoneBookService.findPhoneBook(user);
+
+        return phoneBookService.findPhoneBook(userDetails);
     }
     public List<ResponseUserDTO> getUserInPhoneBookAndSetOff(CustomUserDetails userDetails,String phoneNumberInPhoneBook){
         User user = userRepository.findById(userDetails.getId()).orElseThrow(UserNotfoundException::new);

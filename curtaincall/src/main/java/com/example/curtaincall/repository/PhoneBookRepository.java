@@ -13,6 +13,9 @@ import java.util.Optional;
 public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
     //    @Override
     List<PhoneBook> findByUser(User user);
+
+    @Query("select p from PhoneBook p where p.user.id=:userId")
+    List<PhoneBook> findByUserId(Long userId);
     @Query("select p from PhoneBook p where p.phoneNumber = :phoneNumber and p.user.id = :userId")
     Optional<List<PhoneBook>> findByPhoneNumberAndUserId(@Param("phoneNumber") String phoneNumber,
                                                          @Param("userId") Long userId);
@@ -28,6 +31,7 @@ public interface PhoneBookRepository extends JpaRepository<PhoneBook,Long> {
                                       @Param("phoneNumber") String phoneNumber,
                                       @Param("userId") Long userId);
     Optional<List<PhoneBook>> findByPhoneNumberAndUser(String phoneNumber, User user);
+    //spring data jpa의 동작방식과 관련이 있음-> jpql을 안쓰고는 못함
     @Modifying
     @Query("delete from PhoneBook p where p.phoneNumber=:phoneNumber and  p.user.id=:userId")
     void deleteByPhoneNumberAndUserId(String phoneNumber,Long userId );

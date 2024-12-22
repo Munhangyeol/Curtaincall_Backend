@@ -8,6 +8,7 @@ import com.example.curtaincall.dto.response.ResponsePhoneBookDTO;
 import com.example.curtaincall.dto.response.ResponseUserDTO;
 import com.example.curtaincall.global.SecretkeyManager;
 import com.example.curtaincall.global.exception.PhoneBookNotfoundException;
+import com.example.curtaincall.global.userDetail.CustomUserDetails;
 import com.example.curtaincall.repository.PhoneBookRepository;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +52,7 @@ public class PhoneBookService {
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
         phoneBooks.forEach(phoneBook -> phoneBook.setCurtainCallOnAndOff(false));
         phoneBookRepository.saveAll(phoneBooks);
-        return getResponsePhoneBookDTO(user, phoneBooks);
+        return getResponsePhoneBookDTO(user.getPhoneNumber(), phoneBooks);
     }
     public void setAllOnPhoneBook(User user){
         List<PhoneBook> phoneBooks = phoneBookRepository.findByUser(user);
@@ -68,8 +69,8 @@ public class PhoneBookService {
                 deleteByPhoneNumberAndUserId(number,userId)
         );
     }
-    public ResponsePhoneBookDTO findPhoneBook(User user){
-       return getResponsePhoneBookDTO(user, findByUser(user));
+    public ResponsePhoneBookDTO findPhoneBook(CustomUserDetails userDetails){
+       return getResponsePhoneBookDTO(userDetails.getPhoneNumber(), phoneBookRepository.findByUserId(userDetails.getId()));
     }
     @NotNull
     private static List<ResponseUserDTO> getResponseUserDTOSWithSetOff(List<PhoneBook> phoneBooks) {
@@ -78,19 +79,11 @@ public class PhoneBookService {
                 .build()).collect(Collectors.toList());
     }
     @NotNull
-    private ResponsePhoneBookDTO getResponsePhoneBookDTO(User user, List<PhoneBook> phoneBooks) {
+    private ResponsePhoneBookDTO getResponsePhoneBookDTO(String phoneNumber, List<PhoneBook> phoneBooks) {
         Map<String, List<Contact>> contactMap = new HashMap<>();
         List<Contact> contacts = makeContacts(phoneBooks);
-        contactMap.put(user.getPhoneNumber(), contacts);
+        contactMap.put(phoneNumber, contacts);
         return ResponsePhoneBookDTO.builder().response(contactMap).build();
-    }
-    public void updatePhoneBookDAO(Map<String, Contact> putRequestDTO, String phoneNumber, List<PhoneBook> phoneBooks) {
-        for (PhoneBook phoneBook : phoneBooks) {
-            Contact contact = putRequestDTO.get(phoneNumber);
-            phoneBook.setPhoneNumber(contact.getPhoneNumber());
-            phoneBook.setNickName(contact.getName());
-            phoneBook.setCurtainCallOnAndOff(contact.getIsCurtainCallOnAndOff());
-        }
     }
     @NotNull
     private List<Contact> makeContacts(List<PhoneBook> phoneBooks) {
