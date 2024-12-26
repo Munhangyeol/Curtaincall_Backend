@@ -57,9 +57,6 @@ public class PhoneBookService {
     public void setAllOnPhoneBook(CustomUserDetails userDetails){
          phoneBookRepository.updateCurtaincallAllOnByUserId(userDetails.getId());
     }
-    public List<PhoneBook> findByUser(User user){
-        return phoneBookRepository.findByUser(user);
-    }
     public void deletePhoneNumber(RequestRemovedNumberInPhoneBookDTO numbers,Long userId){
         Arrays.stream(
                 numbers.removedPhoneNumber()).toList().forEach(number-> phoneBookRepository.

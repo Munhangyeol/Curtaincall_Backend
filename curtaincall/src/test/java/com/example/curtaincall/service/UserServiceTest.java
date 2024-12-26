@@ -13,6 +13,7 @@ import com.example.curtaincall.global.auth.CurtaincallUserInfo;
 import com.example.curtaincall.global.exception.UserAlreadyExistsException;
 import com.example.curtaincall.global.exception.UserNotfoundException;
 import com.example.curtaincall.global.userDetail.CustomUserDetails;
+import com.example.curtaincall.repository.PhoneBookRepository;
 import com.example.curtaincall.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.Assertions;
@@ -35,6 +36,8 @@ public class UserServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PhoneBookRepository phoneBookRepository;
     private CustomUserDetails userDetails1;
     @PostConstruct
     public void postConstruct(){
@@ -75,7 +78,20 @@ public class UserServiceTest {
         Assertions.assertNotNull(userService.saveUser(RequestUserDTO.builder()
             .phoneNumber("01023326091").nickName("nickname").isCurtainCall(true).build()));
     }
+    //Casacade 반영이 잘되는지 확인.
+    @Test
+    @DisplayName("user에 대한 정보가 update되었을 때 phoneBook에도 잘 반영된다")
+    public void updateUser(){
+        //given
+        userService.updateUser(RequestUserDTO.builder().phoneNumber("01056789123").isCurtainCall(true)
+                .nickName("아아아")
+                .build(), userDetails1);
+        //when
+        List<PhoneBook> phoneBooks = phoneBookRepository.findByUserId(userDetails1.getId());
+        //then
+        Assertions.assertEquals(phoneBooks.get(0).getUser().getPhoneNumber(),"01056789123");
 
+    }
     @DisplayName("01023326094 user의 번호들을 일괄 on으로 전환")
     @Test
     public void setAllOnCurtaincall(){
