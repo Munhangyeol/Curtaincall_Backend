@@ -5,7 +5,7 @@
 | [문한결](https://github.com/Munhangyeol) | [gksma](https://github.com/gksma) |
 |-------------------------------------------|-------------------------------------------|
 | <div align="center"><img src="https://github.com/Munhangyeol.png" width="100"></div> | <div align="center"><img src="https://github.com/gksma.png" width="100"></div> |
-| **Team Leader & Spring Backend Developer** | **Frontend Developer** |
+| **Spring Backend Developer** | **Frontend Developer** |
 
 ## 📝 개요
 **Curtaincall**은 (주) LK한성으로부터 위탁받아 제작한 전화번호 보안 어플리케이션입니다. 사용자의 전화번호를 안전하게 보호하기 위해 **JWT**, **AES 암호화**, 그리고 **Redis**를 활용하여 높은 보안성을 제공합니다. **Spring Boot**와 **Flutter**를 기반으로 안정적인 백엔드와 직관적인 프론트엔드를 구현하였으며, **AWS** 인프라를 이용한 클라우드 배포 및 **CI/CD** 파이프라인 구축으로 효율적인 개발 및 운영 환경을 유지하고 있습니다.
