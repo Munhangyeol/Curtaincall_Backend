@@ -51,21 +51,78 @@
     │   ├── main
     │   │   ├── java
     │   │   │   └── com.example.curtaincall
-    │   │   │       ├── config           # 애플리케이션 설정 및 보안 설정 관리
-    │   │   │       ├── controller       # REST API 엔드포인트 정의
-    │   │   │       ├── domain           # 엔티티 클래스 정의
-    │   │   │       ├── dto              # 데이터 전송 객체 (DTO) 정의
-    │   │   │       ├── exception        # 커스텀 예외 처리 및 글로벌 예외 핸들링
-    │   │   │       ├── repository       # 데이터베이스 접근을 위한 JPA 리포지토리
-    │   │   │       ├── security         # JWT 및 Spring Security 설정
-    │   │   │       └── service          # 비즈니스 로직 처리
+    │   │   │       ├── ControllerAdvise.java
+    │   │   │       ├── CurtaincallApplication.java
+    │   │   │       ├── controller
+    │   │   │       │   ├── AuthorizationController.java
+    │   │   │       │   ├── CallController.java
+    │   │   │       │   └── UserController.java
+    │   │   │       ├── domain
+    │   │   │       │   ├── PhoneBook.java
+    │   │   │       │   ├── RecentCallLog.java
+    │   │   │       │   ├── User.java
+    │   │   │       │   └── UserListener.java
+    │   │   │       ├── dto
+    │   │   │       │   ├── Contact.java
+    │   │   │       │   ├── LogMessage.java
+    │   │   │       │   ├── request
+    │   │   │       │   │   ├── RequestRecentCallLogDTO.java
+    │   │   │       │   │   ├── RequestRemovedNumberInPhoneBookDTO.java
+    │   │   │       │   │   └── RequestUserDTO.java
+    │   │   │       │   └── response
+    │   │   │       │       ├── ResponseAuthorizationDTO.java
+    │   │   │       │       ├── ResponsePhoneBookDTO.java
+    │   │   │       │       ├── ResponseRecentCallLogDTO.java
+    │   │   │       │       └── ResponseUserDTO.java
+    │   │   │       ├── global
+    │   │   │       │   ├── PhoneNumberConverter.java
+    │   │   │       │   ├── SecretkeyManager.java
+    │   │   │       │   ├── aop
+    │   │   │       │   │   ├── TimeTrace.java
+    │   │   │       │   │   └── TimeTraceAspect.java
+    │   │   │       │   ├── auth
+    │   │   │       │   │   ├── AuthorizationProvider.java
+    │   │   │       │   │   ├── CurtaincallUserInfo.java
+    │   │   │       │   │   ├── CustomAccessDeniedHandler.java
+    │   │   │       │   │   ├── CustomAuthenticationEntryPoint.java
+    │   │   │       │   │   ├── filter
+    │   │   │       │   │   │   └── JwtAuthFilter.java
+    │   │   │       │   │   └── jwt
+    │   │   │       │   │       └── JwtUtils.java
+    │   │   │       │   ├── config
+    │   │   │       │   │   ├── RedisConfig.java
+    │   │   │       │   │   ├── SecurityConfig.java
+    │   │   │       │   │   └── WebConfig.java
+    │   │   │       │   ├── dataloader
+    │   │   │       │   │   ├── PhoneBookDataLoader.java
+    │   │   │       │   │   ├── TestDataLoader.java
+    │   │   │       │   │   └── UserDataLoader.java
+    │   │   │       │   ├── exception
+    │   │   │       │   │   ├── AuthorizationException.java
+    │   │   │       │   │   ├── EncryptException.java
+    │   │   │       │   │   ├── PhoneBookNotfoundException.java
+    │   │   │       │   │   ├── UserAlreadyExistsException.java
+    │   │   │       │   │   └── UserNotfoundException.java
+    │   │   │       │   └── userDetail
+    │   │   │       │       ├── CustomUserDetails.java
+    │   │   │       │       └── CustomUserDetailService.java
+    │   │   │       ├── repository
+    │   │   │       │   ├── PhoneBookRepository.java
+    │   │   │       │   ├── RecentCallLogRepository.java
+    │   │   │       │   └── UserRepository.java
+    │   │   │       └── service
+    │   │   │           ├── AuthorizaionService.java
+    │   │   │           ├── CallLogService.java
+    │   │   │           ├── CurtainCallMessageService.java
+    │   │   │           ├── PhoneBookService.java
+    │   │   │           └── UserService.java
     │   │   └── resources
-    │   │       ├── application.properties     # 애플리케이션 환경 설정 파일
-    │   │       └── static               # 정적 파일 저장소
+    │   │       ├── application.yml       # 애플리케이션 환경 설정 파일
+    │   │       └── static                # 정적 파일 저장소
     │   └── test
     │       └── java
     │           └── com.example.curtaincall
-    │               └── service          # 서비스 계층 테스트
+    │               └── service           # 서비스 계층 테스트
     ├── Dockerfile
     ├── docker-compose.yml
     └── README.md
@@ -100,7 +157,7 @@
 
 ## 📈 성능 최적화
 
-- ```QueryDsl**,```JPQL```을 활용한 동적 쿼리 작성으로 유연한 데이터 검색 및 처리.
+- ```QueryDsl```,```JPQL```을 활용한 동적 쿼리 작성으로 유연한 데이터 검색 및 처리.
   - Update문 수행시 수행 시간  0.029초 → 0.014초로 절감 ([관련 PR](https://github.com/Project-CurtainCall/backend/pull/56))
 - ```Redis```를 활용한 인증번호 데이터에 빠른 접근 및 TTL설정을 활용한 저장공간 확보
 - `Junit5`를 통한 지속적인 테스트 및 성능 검증.
