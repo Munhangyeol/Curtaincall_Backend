@@ -100,7 +100,7 @@
 
 ## 📈 성능 최적화
 
-- ```QueryDsl**,```JPQL```을 활용한 동적 쿼리 작성으로 유연한 데이터 검색 및 처리.
+- ```QueryDsl```,```JPQL```을 활용한 동적 쿼리 작성으로 유연한 데이터 검색 및 처리.
   - Update문 수행시 수행 시간  0.029초 → 0.014초로 절감 ([관련 PR](https://github.com/Project-CurtainCall/backend/pull/56))
 - ```Redis```를 활용한 인증번호 데이터에 빠른 접근 및 TTL설정을 활용한 저장공간 확보
 - `Junit5`를 통한 지속적인 테스트 및 성능 검증.
