@@ -5,7 +5,7 @@
 | [문한결](https://github.com/Munhangyeol) | [gksma](https://github.com/gksma) |
 |-------------------------------------------|-------------------------------------------|
 | <div align="center"><img src="https://github.com/Munhangyeol.png" width="100"></div> | <div align="center"><img src="https://github.com/gksma.png" width="100"></div> |
-| **Backend Developer** | **Frontend Developer** |
+| **Spring Backend Developer** | **Frontend Developer** |
 
 ## 📝 개요
 **Curtaincall**은 (주) LK한성으로부터 위탁받아 제작한 전화번호 보안 어플리케이션입니다. 사용자의 전화번호를 안전하게 보호하기 위해 **JWT**, **AES 암호화**, 그리고 **Redis**를 활용하여 높은 보안성을 제공합니다. **Spring Boot**와 **Flutter**를 기반으로 안정적인 백엔드와 직관적인 프론트엔드를 구현하였으며, **AWS** 인프라를 이용한 클라우드 배포 및 **CI/CD** 파이프라인 구축으로 효율적인 개발 및 운영 환경을 유지하고 있습니다.
@@ -51,21 +51,78 @@
     │   ├── main
     │   │   ├── java
     │   │   │   └── com.example.curtaincall
-    │   │   │       ├── config           # 애플리케이션 설정 및 보안 설정 관리
-    │   │   │       ├── controller       # REST API 엔드포인트 정의
-    │   │   │       ├── domain           # 엔티티 클래스 정의
-    │   │   │       ├── dto              # 데이터 전송 객체 (DTO) 정의
-    │   │   │       ├── exception        # 커스텀 예외 처리 및 글로벌 예외 핸들링
-    │   │   │       ├── repository       # 데이터베이스 접근을 위한 JPA 리포지토리
-    │   │   │       ├── security         # JWT 및 Spring Security 설정
-    │   │   │       └── service          # 비즈니스 로직 처리
+    │   │   │       ├── ControllerAdvise.java
+    │   │   │       ├── CurtaincallApplication.java
+    │   │   │       ├── controller
+    │   │   │       │   ├── AuthorizationController.java
+    │   │   │       │   ├── CallController.java
+    │   │   │       │   └── UserController.java
+    │   │   │       ├── domain
+    │   │   │       │   ├── PhoneBook.java
+    │   │   │       │   ├── RecentCallLog.java
+    │   │   │       │   ├── User.java
+    │   │   │       │   └── UserListener.java
+    │   │   │       ├── dto
+    │   │   │       │   ├── Contact.java
+    │   │   │       │   ├── LogMessage.java
+    │   │   │       │   ├── request
+    │   │   │       │   │   ├── RequestRecentCallLogDTO.java
+    │   │   │       │   │   ├── RequestRemovedNumberInPhoneBookDTO.java
+    │   │   │       │   │   └── RequestUserDTO.java
+    │   │   │       │   └── response
+    │   │   │       │       ├── ResponseAuthorizationDTO.java
+    │   │   │       │       ├── ResponsePhoneBookDTO.java
+    │   │   │       │       ├── ResponseRecentCallLogDTO.java
+    │   │   │       │       └── ResponseUserDTO.java
+    │   │   │       ├── global
+    │   │   │       │   ├── PhoneNumberConverter.java
+    │   │   │       │   ├── SecretkeyManager.java
+    │   │   │       │   ├── aop
+    │   │   │       │   │   ├── TimeTrace.java
+    │   │   │       │   │   └── TimeTraceAspect.java
+    │   │   │       │   ├── auth
+    │   │   │       │   │   ├── AuthorizationProvider.java
+    │   │   │       │   │   ├── CurtaincallUserInfo.java
+    │   │   │       │   │   ├── CustomAccessDeniedHandler.java
+    │   │   │       │   │   ├── CustomAuthenticationEntryPoint.java
+    │   │   │       │   │   ├── filter
+    │   │   │       │   │   │   └── JwtAuthFilter.java
+    │   │   │       │   │   └── jwt
+    │   │   │       │   │       └── JwtUtils.java
+    │   │   │       │   ├── config
+    │   │   │       │   │   ├── RedisConfig.java
+    │   │   │       │   │   ├── SecurityConfig.java
+    │   │   │       │   │   └── WebConfig.java
+    │   │   │       │   ├── dataloader
+    │   │   │       │   │   ├── PhoneBookDataLoader.java
+    │   │   │       │   │   ├── TestDataLoader.java
+    │   │   │       │   │   └── UserDataLoader.java
+    │   │   │       │   ├── exception
+    │   │   │       │   │   ├── AuthorizationException.java
+    │   │   │       │   │   ├── EncryptException.java
+    │   │   │       │   │   ├── PhoneBookNotfoundException.java
+    │   │   │       │   │   ├── UserAlreadyExistsException.java
+    │   │   │       │   │   └── UserNotfoundException.java
+    │   │   │       │   └── userDetail
+    │   │   │       │       ├── CustomUserDetails.java
+    │   │   │       │       └── CustomUserDetailService.java
+    │   │   │       ├── repository
+    │   │   │       │   ├── PhoneBookRepository.java
+    │   │   │       │   ├── RecentCallLogRepository.java
+    │   │   │       │   └── UserRepository.java
+    │   │   │       └── service
+    │   │   │           ├── AuthorizaionService.java
+    │   │   │           ├── CallLogService.java
+    │   │   │           ├── CurtainCallMessageService.java
+    │   │   │           ├── PhoneBookService.java
+    │   │   │           └── UserService.java
     │   │   └── resources
-    │   │       ├── application.properties     # 애플리케이션 환경 설정 파일
-    │   │       └── static               # 정적 파일 저장소
+    │   │       ├── application.yml       # 애플리케이션 환경 설정 파일
+    │   │       └── static                # 정적 파일 저장소
     │   └── test
     │       └── java
     │           └── com.example.curtaincall
-    │               └── service          # 서비스 계층 테스트
+    │               └── service           # 서비스 계층 테스트
     ├── Dockerfile
     ├── docker-compose.yml
     └── README.md
